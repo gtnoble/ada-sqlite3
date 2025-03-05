@@ -1,0 +1,2 @@
+ada_sqlite3_test_suite.adb:9:06: warning: redundant with clause in body [-gnatwr]
+ada_sqlite3_test_suite.adb:12:06: warning: unit "Blob_Tests" is not referenced [-gnatwu]

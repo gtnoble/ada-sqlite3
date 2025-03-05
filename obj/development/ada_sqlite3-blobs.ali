@@ -1,0 +1,256 @@
+V "GNAT Lib v14"
+A -O2
+A -gnatA
+A -g
+A -gnato
+A -gnatwa
+A -gnatVa
+A -gnatQ
+A -gnata
+A -gnat12
+A -gnatW8
+A -mtune=generic
+A -march=x86-64
+P SS ZX
+
+RN
+RV NO_ALLOCATORS
+RV NO_DIRECT_BOOLEAN_OPERATORS
+RV NO_DISPATCHING_CALLS
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTIONS
+RV NO_FINALIZATION
+RV NO_IMPLICIT_CONDITIONALS
+RV NO_LOCAL_ALLOCATORS
+RV NO_NESTED_FINALIZATION
+RV NO_SECONDARY_STACK
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_UNCHECKED_CONVERSION
+RV NO_UNCHECKED_DEALLOCATION
+RV NO_DEFAULT_INITIALIZATION
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLEMENTATION_ASPECT_SPECIFICATIONS
+RV NO_IMPLEMENTATION_PRAGMAS
+RV NO_ELABORATION_CODE
+
+U ada_sqlite3.blobs%b	ada_sqlite3-blobs.adb	2a11f2f7 OO PK
+W ada%s			ada.ads			ada.ali
+Z ada.exceptions%s	a-except.adb		a-except.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+W ada.unchecked_conversion%s
+W ada.unchecked_deallocation%s
+W ada_sqlite3%s		ada_sqlite3.adb		ada_sqlite3.ali
+W ada_sqlite3.low_level%s  ada_sqlite3-low_level.adb  ada_sqlite3-low_level.ali
+W interfaces%s		interfac.ads		interfac.ali
+W interfaces.c%s	i-c.adb			i-c.ali
+W interfaces.c.strings%s  i-cstrin.adb		i-cstrin.ali
+W system%s		system.ads		system.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+
+U ada_sqlite3.blobs%s	ada_sqlite3-blobs.ads	d78c9a8f EE OO PF PK
+W ada%s			ada.ads			ada.ali
+Z ada.exceptions%s	a-except.adb		a-except.ali
+W ada.finalization%s	a-finali.ads		a-finali.ali
+W ada.streams%s		a-stream.adb		a-stream.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+W ada_sqlite3%s		ada_sqlite3.adb		ada_sqlite3.ali
+Z system%s		system.ads		system.ali
+Z system.put_images%s	s-putima.adb		s-putima.ali
+Z system.return_stack%s	s-retsta.ads		s-retsta.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+Z system.stream_attributes%s  s-stratt.adb	s-stratt.ali
+
+D ada.ads		20240801081713 76789da1 ada%s
+D a-except.ads		20240801081713 e7970cd9 ada.exceptions%s
+D a-finali.ads		20240801081713 bf4f806b ada.finalization%s
+D a-stream.ads		20240801081713 119b8fb3 ada.streams%s
+D a-string.ads		20240801081713 90ac6797 ada.strings%s
+D a-sttebu.ads		20240801081713 f1ad67a2 ada.strings.text_buffers%s
+D a-stuten.ads		20240801081713 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20240801081713 9eaa38c6 ada.tags%s
+D a-unccon.ads		20240801081713 0e9b276f ada.unchecked_conversion%s
+D a-uncdea.ads		20240801081713 c3a8ac65 ada.unchecked_deallocation%s
+D ada_sqlite3.ads	20250302212249 64558577 ada_sqlite3%s
+D ada_sqlite3-blobs.ads	20250302211959 1d0d1020 ada_sqlite3.blobs%s
+D ada_sqlite3-blobs.adb	20250302211826 455ee544 ada_sqlite3.blobs%b
+D ada_sqlite3-low_level.ads  20250302210014 559330fc ada_sqlite3.low_level%s
+D interfac.ads		20240801081713 9111f9c1 interfaces%s
+D i-c.ads		20240801081713 aac316ce interfaces.c%s
+D i-cstrin.ads		20240801081713 5409c1a4 interfaces.c.strings%s
+D system.ads		20240801081714 14286b0f system%s
+D s-exctab.ads		20240801081713 91bef6ef system.exception_table%s
+D s-finmas.ads		20240801081713 28987ac5 system.finalization_masters%s
+D s-finroo.ads		20240801081713 4ff27390 system.finalization_root%s
+D s-memory.ads		20240801081713 18949c1a system.memory%s
+D s-parame.ads		20240801081713 3597fc11 system.parameters%s
+D s-pooglo.ads		20240801081713 91708d21 system.pool_global%s
+D s-putima.ads		20240801081713 17291fe4 system.put_images%s
+D s-retsta.ads		20240801081713 0f6b06cb system.return_stack%s
+D s-secsta.ads		20240801081713 578279f5 system.secondary_stack%s
+D s-soflin.ads		20240801081713 df77073e system.soft_links%s
+D s-stache.ads		20240801081713 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20240801081713 1c9580f6 system.standard_library%s
+D s-stalib.adb		20240801081713 eb464a47 system.standard_library%b
+D s-stoele.ads		20240801081713 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20240801081713 e9fa2dd8 system.storage_pools%s
+D s-stratt.ads		20240801081713 a1861007 system.stream_attributes%s
+D s-traent.ads		20240801081713 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20240801081713 fa2a7f59 system.unsigned_types%s
+G a e
+G c Z s b [create ada_sqlite3__blobs 18 13 none]
+G c Z s b [size ada_sqlite3__blobs 21 13 none]
+G c Z s b [data ada_sqlite3__blobs 24 13 none]
+G c Z s b [bind_blob ada_sqlite3__blobs 27 14 none]
+G c Z s b [column_blob ada_sqlite3__blobs 33 13 none]
+G c Z s b [read_blob ada_sqlite3__blobs 38 14 none]
+G c Z s b [write_blob ada_sqlite3__blobs 43 14 none]
+G c Z s b [initialize ada_sqlite3__blobs 56 25 none]
+G c Z s b [adjust ada_sqlite3__blobs 57 25 none]
+G c Z s b [finalize ada_sqlite3__blobs 58 25 none]
+G c Z s s [blobDA ada_sqlite3__blobs 51 9 none]
+G c Z s s [blobDF ada_sqlite3__blobs 51 9 none]
+G c Z s s [blobIP ada_sqlite3__blobs 51 9 none]
+G c Z b b [free ada_sqlite3__blobs 27 14 none]
+G r c none [bind_blob ada_sqlite3__blobs 27 14 none] [sqlite3_bind_null ada_sqlite3__low_level 137 13 none]
+G r c none [bind_blob ada_sqlite3__blobs 27 14 none] [sqlite3_bind_blob ada_sqlite3__low_level 232 13 none]
+G r c none [bind_blob ada_sqlite3__blobs 27 14 none] [raise_error ada_sqlite3 54 14 none]
+G r c none [column_blob ada_sqlite3__blobs 33 13 none] [get_column_type ada_sqlite3 177 13 none]
+G r c none [column_blob ada_sqlite3__blobs 33 13 none] [sqlite3_column_blob ada_sqlite3__low_level 226 13 none]
+G r c none [column_blob ada_sqlite3__blobs 33 13 none] [sqlite3_column_bytes ada_sqlite3__low_level 220 13 none]
+X 1 ada.ads
+16K9*Ada 20e8 12|9r6 10r6 18r28 24r41 40r19 41r19 45r15 49r36 51r21 53r16
+. 13|9r6 10r6 21r24 27r26 31r28 34r26 50r41 125r32 125r70 127r47 131r29 141r19
+. 142r19 144r16 157r31 159r32 160r12 171r15 173r16 177r24 181r26 202r19
+X 3 a-finali.ads
+40K13*Finalization 68e21 12|10w10 51r25
+43H9*Controlled<21|40R9> 59e72 12|51r38
+X 4 a-stream.ads
+36K13*Streams 87e16 12|9w10 18r32 24r45 40r23 41r23 45r19 49r40 53r20 13|21r28
+. 31r32 34r30 50r45 125r36 125r74 131r33 141r23 142r23 144r20 157r35 159r36
+. 160r16 171r19 173r20 177r28 181r30 202r23
+42M9*Stream_Element
+44I9*Stream_Element_Offset<long_long_integer> 12|41r31 53r28 13|125r82 142r31
+. 144r28 157r43 159r44 160r24 173r28
+54A9*Stream_Element_Array(42M9)<44I9> 12|18r40 24r53 40r31 45r27 49r48 13|28r11
+. 31r40 34r38 50r53 125r44 131r41 141r31 171r27 177r36 181r38 202r31
+X 9 a-unccon.ads
+20v14*Unchecked_Conversion 13|10w10 127r51
+X 10 a-uncdea.ads
+20u15*Unchecked_Deallocation 13|9w10 27r30
+X 11 ada_sqlite3.ads
+12K9*Ada_Sqlite3 225e16 12|12r9 60r5 13|13r6 16r14 20r23 222r5
+15I9*Result_Code<integer> 13|65r16
+18i4*OK{15I9} 13|86r20
+51X4*SQLite_Error 13|68r16 101r16
+54U14*Raise_Error 13|87s10
+65n7*Null_Type{60E9} 13|105r42
+110R9*Statement<3|50R9> 221e14 12|28r22 34r15 13|61r22 93r15
+177V13*Get_Column_Type{60E9} 13|105s10
+219m7*Handle{18|67M9} 13|67r15 74r44 79r48 100r15 111r41 116r41
+X 12 ada_sqlite3-blobs.ads
+12K21*Blobs 11|12k9 12|49E9 60l17 60e22 13|16b26 222l17 222t22
+15R9*Blob<3|43R9> 18r69 21r28 24r28 30r15 35r31 39r22 44r22 51c9 54e14 56r53
+. 57r49 58r51 13|31r69 32r16 40r28 50r28 63r15 94r31 98r16 140r22 170r22
+. 191r53 197r49 209r51
+18V13*Create{15R9} 18>21 13|31b13 37l8 37t14
+18a21 Data{4|54A9} 13|31b21 34r60 35r24
+21V13*Size{natural} 21>19 13|40b13 47l8 47t12
+21r19 Object{15R9} 13|40b19 42r10 45r17
+24V13*Data{4|54A9} 24>19 13|50b13 57l8 57t12
+24r19 Object{15R9} 13|50b19 52r10 55r17
+27U14*Bind_Blob 28=7 29>7 30>7 13|60b14 89l8 89t17
+28r7 Stmt{11|110R9} 13|61b7 67r10 74r39 79r43
+29i7 Index{positive} 13|62b7 75r29 80r33
+30r7 Value{15R9} 13|63b7 71r10 81r26 82r33
+33V13*Column_Blob{15R9} 34>7 35>7 13|92b13 136l8 136t19
+34r7 Stmt{11|110R9} 13|93b7 100r10 105r27 111r36 116r36
+35i7 Index{natural} 13|94b7 105r33 112r26 117r26
+38U14*Read_Blob 39=7 40<7 41<7 13|139b14 167l8 167t17
+39r7 B{15R9} 13|140b7 146r10 151r10 151r21 158r12 158r26 163r12 163r20 163r32
+. 164m10 164r22
+40a7 Item{4|54A9} 13|141b7 147r18 152r18 160r51 162m10 162r16 162r30 165r18
+41i7 Last{4|44I9} 13|142b7 147m10 152m10 165m10
+43U14*Write_Blob 44=7 45>7 13|169b14 188l8 188t18
+44r7 B{15R9} 13|170b7 176r10 177m10 178m10 178r22 182r13 182r29 183r20 183r37
+. 184r20 185m16 185r16 186m10
+45a7 Item{4|54A9} 13|171b7 177r58 182r43 184r57
+49P9 Blob_Data_Access(4|54A9) 52r16 13|28r33 174r18 201r33
+52p7*Data{49P9} 13|34m14 42r17 45r24 52r17 55r24 71r16 81r32 82r39 131m17
+. 132r34 146r12 151r23 158r14 163r14 176r12 177m12 178r24 182r15 182r31 183r22
+. 183r39 184r22 185m18 185r18 186m12 193m14 199r17 202r60 204m20 212r20 213m26
+. 213r26 214m20
+53i7*Cursor{4|44I9} 13|35m14 132m17 151r12 158r28 163r22 163r34 164m12 164r24
+. 178m12 194m14 216m17
+56U25 Initialize<3|46p14> 56=37 13|191b25 195l8 195t18
+56r37 Object{15R9} 13|191b37 193m7 194m7
+57U25 Adjust<3|47p14> 57=33 13|197b25 207l8 207t14
+57r33 Object{15R9} 13|197b33 199r10 202r53 204m13
+58U25 Finalize<3|48p14> 58=35 13|209b25 220l8 220t16
+58r35 Object{15R9} 13|209b35 212r13 213m19 213r19 214m13 216m10
+X 13 ada_sqlite3-blobs.adb
+18K12 C=18:33 23r13 75r22 80r26 82r26 97r19 112r19 117r19
+19K12 CS=19:36
+20K12 LL=20:35 25r13 73r20 74r22 78r20 79r26 83r27 110r19 111r19 115r20 116r19
+21K12 SEA=21:28 28r7
+27U14 Free[10|20] 185s10 213s13
+32r7 Result{12|15R9} 34m7 35m7 36r14
+65i7 Result{11|15I9} 73m10 78m10 86r10 87r23
+96m7 Blob_Ptr{18|67M9} 110m7 119r10 129r73
+97i7 Blob_Size{16|59I9} 115m7 119r44 125r104
+98r7 Result{12|15R9} 106r17 120r17 131m10 132m10 132r27 135r14
+125A18 Blob_Array{4|54A9}<4|44I9> 126r47
+126P15 Blob_Array_Access(125A18) 128r29 129r31
+127V19 To_Blob_Array_Access[9|20]{126P15} 129s52
+129p10 Blob_Data{126P15} 131r63
+157i10 Remaining{4|44I9} 160r64
+159i10 Copy_Count{4|44I9} 162r43 163r43 164r33 165r31
+174p7 New_Data{12|49P9} 181m10 183r10 184r10 184r39 186r20
+201p13 New_Data{12|49P9} 204r28
+210U17 Free_Data 210b17 217l11 217t20 219s7
+X 14 ada_sqlite3-low_level.ads
+13K21*Low_Level 13|13w18 20r35 14|240e26
+23M9*Sqlite3_Stmt<18|67M9> 13|74r25 79r29 111r22 116r22
+35I9*Destructor_Type<integer>
+37i4*SQLITE_TRANSIENT{35I9} 13|83r30
+40E9*Datatype 13|25r16 14|45e19
+137V13*Sqlite3_Bind_Null{11|15I9} 13|73s23
+138m7 Stmt{23M9} 13|74r13
+139i7 Index{16|59I9} 13|75r13
+220V13*Sqlite3_Column_Bytes{16|59I9} 13|115s23
+221m7 Stmt{23M9} 13|116r10
+222i7 Index{16|59I9} 13|117r10
+226V13*Sqlite3_Column_Blob{18|67M9} 13|110s22
+227m7 Stmt{23M9} 13|111r10
+228i7 Index{16|59I9} 13|112r10
+232V13*Sqlite3_Bind_Blob{11|15I9} 13|78s23
+233m7 Stmt{23M9} 13|79r13
+234i7 Index{16|59I9} 13|80r13
+235m7 Value{18|67M9} 13|81r13
+236i7 N_Bytes{16|59I9} 13|82r13
+237i7 Destructor{35I9} 13|83r13
+X 15 interfac.ads
+38K9*Interfaces 13|11r6 12r6 18r22 19r23 15|233e15
+X 16 i-c.ads
+30K20*C 13|11w17 12r17 18r33 19r34 16|598e17
+59I9*int<integer> 13|23r15 75r24 80r28 82r28 97r21 112r21 117r21
+X 17 i-cstrin.ads
+44K22*Strings 13|12w19 19r36 17|154e25
+X 18 system.ads
+37K9*System 13|14w6 24r13 67r24 96r18 100r24 119r21 128r13 18|155e11
+67M9*Address 13|24r20 96r25 128r20
+69m4*Null_Address{67M9} 13|67r31 100r31 119r28
+81V14*"="{boolean} 13|67r22 100r22 119r19
+X 22 s-memory.ads
+51V13*Alloc{18|67M9} 101i<c,__gnat_malloc>22
+66U14*Free 102i<c,__gnat_free>22
+74V13*Realloc{18|67M9} 103i<c,__gnat_realloc>22
+X 31 s-stalib.adb
+87U14 Break_Start 88i<c,__gnat_break_start>22
+

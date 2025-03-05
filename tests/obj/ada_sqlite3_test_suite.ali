@@ -1,0 +1,126 @@
+V "GNAT Lib v14"
+A -O0
+A -gnatA
+A -gnatwa
+A -gnatVa
+A -gnatQ
+A -gnat12
+A -gnato
+A -gnata
+A -g
+A -mtune=generic
+A -march=x86-64
+P ZX
+
+RN
+RV NO_ALLOCATORS
+RV NO_LOCAL_ALLOCATORS
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DEFAULT_INITIALIZATION
+RV NO_IMPLEMENTATION_PRAGMAS
+
+U ada_sqlite3_test_suite%b  ada_sqlite3_test_suite.adb  8d65d0b1 NE OO PK
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W aunit%s		aunit.adb		aunit.ali
+W aunit.test_suites%s	aunit-test_suites.adb	aunit-test_suites.ali
+W blob_tests%s		blob_tests.adb		blob_tests.ali
+W database_tests%s	database_tests.adb	database_tests.ali
+W statement_tests%s	statement_tests.adb	statement_tests.ali
+Z system%s		system.ads		system.ali
+Z system.storage_elements%s  s-stoele.ads	s-stoele.ali
+Z system.storage_pools%s  s-stopoo.adb		s-stopoo.ali
+Z system.storage_pools.subpools%s  s-stposu.adb	s-stposu.ali
+W transaction_tests%s	transaction_tests.adb	transaction_tests.ali
+
+U ada_sqlite3_test_suite%s  ada_sqlite3_test_suite.ads  121fefbf EE NE OO PK
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+W aunit%s		aunit.adb		aunit.ali
+W aunit.test_suites%s	aunit-test_suites.adb	aunit-test_suites.ali
+
+D ada.ads		20240801081713 76789da1 ada%s
+D a-calend.ads		20240801081713 158a5463 ada.calendar%s
+D a-except.ads		20240801081713 e7970cd9 ada.exceptions%s
+D a-finali.ads		20240801081713 bf4f806b ada.finalization%s
+D a-inteio.ads		20240801081713 f64b89a4 ada.integer_text_io%s
+D a-ioexce.ads		20240801081713 40018c65 ada.io_exceptions%s
+D a-stream.ads		20240801081713 119b8fb3 ada.streams%s
+D a-string.ads		20240801081713 90ac6797 ada.strings%s
+D a-sttebu.ads		20240801081713 f1ad67a2 ada.strings.text_buffers%s
+D a-stuten.ads		20240801081713 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20240801081713 9eaa38c6 ada.tags%s
+D a-textio.ads		20240801081713 34ef47de ada.text_io%s
+D a-tiinio.ads		20240801081713 76699c8f ada.text_io.integer_io%s
+D a-unccon.ads		20240801081713 0e9b276f ada.unchecked_conversion%s
+D ada_containers.ads	20240312145141 11329e00 ada_containers%s
+D ada_containers-aunit_lists.ads  20240312145141 d9ebc89a ada_containers.aunit_lists%s
+D ada_sqlite3_test_suite.ads  20250303005425 7a3e339b ada_sqlite3_test_suite%s
+D ada_sqlite3_test_suite.adb  20250303015534 3246b3a7 ada_sqlite3_test_suite%b
+D aunit.ads		20240312145141 76cdf7c6 aunit%s
+D aunit-assertions.ads	20240312145141 b7f9ecd6 aunit.assertions%s
+D aunit-io.ads		20240312145141 fb5ed18b aunit.io%s
+D aunit-options.ads	20240312145141 6e5a02a6 aunit.options%s
+D aunit-simple_test_cases.ads  20240312145141 4111c32f aunit.simple_test_cases%s
+D aunit-test_filters.ads  20240312145141 f10b2127 aunit.test_filters%s
+D aunit-test_fixtures.ads  20240312145141 faadeab5 aunit.test_fixtures%s
+D aunit-test_results.ads  20240312145141 b44de7dc aunit.test_results%s
+D aunit-test_suites.ads	20240312145141 6821dc24 aunit.test_suites%s
+D aunit-tests.ads	20240312145141 1da11d49 aunit.tests%s
+D aunit-time_measure.ads  20240312145141 d9c247b0 aunit.time_measure%s
+D blob_tests.ads	20250303005757 3592f77d blob_tests%s
+D database_tests.ads	20250303005458 cbd18fdd database_tests%s
+D gnat.ads		20240801081713 b5988c27 gnat%s
+D g-souinf.ads		20240801081713 470146ee gnat.source_info%s
+D interfac.ads		20240801081713 9111f9c1 interfaces%s
+D i-cstrea.ads		20240801081713 ffd01b9d interfaces.c_streams%s
+D statement_tests.ads	20250303005604 99f24385 statement_tests%s
+D system.ads		20240801081714 14286b0f system%s
+D s-crtl.ads		20240801081713 beb39b9e system.crtl%s
+D s-exctab.ads		20240801081713 91bef6ef system.exception_table%s
+D s-ficobl.ads		20240801081713 dc5161d4 system.file_control_block%s
+D s-finmas.ads		20240801081713 28987ac5 system.finalization_masters%s
+D s-finroo.ads		20240801081713 4ff27390 system.finalization_root%s
+D s-parame.ads		20240801081713 3597fc11 system.parameters%s
+D s-pooglo.ads		20240801081713 91708d21 system.pool_global%s
+D s-putima.ads		20240801081713 17291fe4 system.put_images%s
+D s-secsta.ads		20240801081713 578279f5 system.secondary_stack%s
+D s-soflin.ads		20240801081713 df77073e system.soft_links%s
+D s-stache.ads		20240801081713 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20240801081713 1c9580f6 system.standard_library%s
+D s-stoele.ads		20240801081713 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20240801081713 e9fa2dd8 system.storage_pools%s
+D s-stposu.ads		20240801081713 e251976f system.storage_pools.subpools%s
+D s-traent.ads		20240801081713 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20240801081713 fa2a7f59 system.unsigned_types%s
+D s-wchcon.ads		20240801081714 d9032363 system.wch_con%s
+D transaction_tests.ads	20250303005902 ca8db78c transaction_tests%s
+G a e
+G c Z s b [suite ada_sqlite3_test_suite 14 13 none]
+G r s test_suite [suite ada_sqlite3_test_suite 14 13 none] [test_suiteIP aunit__test_suites 82 9 none]
+G r c none [suite ada_sqlite3_test_suite 14 13 none] [suite database_tests 29 13 none]
+G r c none [suite ada_sqlite3_test_suite 14 13 none] [add_test aunit__test_suites 46 14 none]
+G r c none [suite ada_sqlite3_test_suite 14 13 none] [suite statement_tests 39 13 none]
+G r c none [suite ada_sqlite3_test_suite 14 13 none] [suite transaction_tests 26 13 none]
+X 17 ada_sqlite3_test_suite.ads
+11K9*Ada_Sqlite3_Test_Suite 16l5 16e27 18|15b14 32l5 32t27
+14V13*Suite{27|44P9} 18|20b13 30l8 30t13
+X 18 ada_sqlite3_test_suite.adb
+21p7 Result{27|44P9} 24r7 25r7 27r7 29r14
+X 19 aunit.ads
+34K9*AUnit 17|9r6 14r26 18|9r6 17r8 19|48e10
+X 27 aunit-test_suites.ads
+41K15*Test_Suites 17|9w12 14r32 18|9w12 17r14 27|86e22
+43R9*Test_Suite<28|38R9> 18|21r50 27|84e14
+44P9*Access_Test_Suite(43R9) 17|14r44 18|20r26 21r25
+46U14*Add_Test 18|24s14 25s14 27s14
+X 30 blob_tests.ads
+13K9*Blob_Tests 18|12w6 30|31e15
+X 31 database_tests.ads
+13K9*Database_Tests 18|10w6 24r24 31|31e19
+29V13*Suite{27|44P9} 18|24s39
+X 36 statement_tests.ads
+13K9*Statement_Tests 18|11w6 25r24 36|41e20
+39V13*Suite{27|44P9} 18|25s40
+X 56 transaction_tests.ads
+13K9*Transaction_Tests 18|13w6 27r24 56|28e22
+26V13*Suite{27|44P9} 18|27s42
+

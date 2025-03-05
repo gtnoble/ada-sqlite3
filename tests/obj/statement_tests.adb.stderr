@@ -1,0 +1,1 @@
+statement_tests.adb:310:07: warning: variable "Stmt1" is not referenced [-gnatwu]

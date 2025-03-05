@@ -1,0 +1,3 @@
+ada_sqlite3-blobs.adb:12:18: warning: no entities of "Interfaces.C.Strings" are referenced [-gnatwu]
+ada_sqlite3-blobs.adb:19:12: warning: package "CS" is not referenced [-gnatwu]
+ada_sqlite3-blobs.adb:25:04: warning: use clause for type "Datatype" defined at ada_sqlite3-low_level.ads:40 has no effect [-gnatwu]

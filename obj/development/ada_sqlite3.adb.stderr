@@ -1,0 +1,1 @@
+ada_sqlite3.adb:22:04: warning: use clause for type "Datatype" defined at ada_sqlite3-low_level.ads:40 has no effect [-gnatwu]

@@ -1,0 +1,448 @@
+V "GNAT Lib v14"
+A -O0
+A -gnatA
+A -gnatwa
+A -gnatVa
+A -gnatQ
+A -gnat12
+A -gnato
+A -gnata
+A -g
+A -mtune=generic
+A -march=x86-64
+P SS ZX
+
+RN
+RV NO_ACCESS_SUBPROGRAMS
+RV NO_ALLOCATORS
+RV NO_DISPATCH
+RV NO_DISPATCHING_CALLS
+RV NO_EXCEPTION_HANDLERS
+RV NO_EXCEPTIONS
+RV NO_LOCAL_ALLOCATORS
+RV NO_NESTED_FINALIZATION
+RV NO_SECONDARY_STACK
+RV NO_STANDARD_STORAGE_POOLS
+RV NO_DEFAULT_INITIALIZATION
+RV NO_DYNAMIC_SIZED_OBJECTS
+RV NO_IMPLEMENTATION_PRAGMAS
+RV NO_ELABORATION_CODE
+
+U blob_tests%b		blob_tests.adb		bf6e98d8 OO PF PK
+W ada%s			ada.ads			ada.ali
+Z ada.exceptions%s	a-except.adb		a-except.ali
+W ada.streams%s		a-stream.adb		a-stream.ali
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+Z ada.unchecked_conversion%s
+W ada_sqlite3%s		ada_sqlite3.adb		ada_sqlite3.ali
+W ada_sqlite3.blobs%s	ada_sqlite3-blobs.adb	ada_sqlite3-blobs.ali
+W aunit%s		aunit.adb		aunit.ali
+W aunit.assertions%s	aunit-assertions.adb	aunit-assertions.ali
+W aunit.memory%s	aunit-memory.adb	aunit-memory.ali
+Z aunit.memory.utils%s	aunit-memory-utils.adb	aunit-memory-utils.ali  ED
+Z aunit.simple_test_cases%s  aunit-simple_test_cases.adb  aunit-simple_test_cases.ali
+W aunit.test_caller%s	aunit-test_caller.adb	aunit-test_caller.ali  ED
+Z aunit.test_fixtures%s	aunit-test_fixtures.adb	aunit-test_fixtures.ali
+Z system%s		system.ads		system.ali
+Z system.concat_2%s	s-conca2.adb		s-conca2.ali
+Z system.concat_3%s	s-conca3.adb		s-conca3.ali
+Z system.finalization_masters%s  s-finmas.adb	s-finmas.ali
+Z system.img_lli%s	s-imglli.ads		s-imglli.ali
+Z system.pool_global%s	s-pooglo.adb		s-pooglo.ali
+Z system.put_images%s	s-putima.adb		s-putima.ali
+Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+Z system.standard_library%s  s-stalib.adb	s-stalib.ali
+Z system.storage_elements%s  s-stoele.ads	s-stoele.ali
+Z system.storage_pools%s  s-stopoo.adb		s-stopoo.ali
+Z system.storage_pools.subpools%s  s-stposu.adb	s-stposu.ali
+
+U blob_tests%s		blob_tests.ads		d1d3362a EE OO PF PK
+Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
+Z ada.tags%s		a-tags.adb		a-tags.ali
+W aunit%s		aunit.adb		aunit.ali
+W aunit.test_fixtures%s	aunit-test_fixtures.adb	aunit-test_fixtures.ali
+W aunit.test_suites%s	aunit-test_suites.adb	aunit-test_suites.ali
+Z system%s		system.ads		system.ali
+Z system.put_images%s	s-putima.adb		s-putima.ali
+Z system.soft_links%s	s-soflin.adb		s-soflin.ali
+
+D ada.ads		20240801081713 76789da1 ada%s
+D a-calend.ads		20240801081713 158a5463 ada.calendar%s
+D a-except.ads		20240801081713 e7970cd9 ada.exceptions%s
+D a-finali.ads		20240801081713 bf4f806b ada.finalization%s
+D a-inteio.ads		20240801081713 f64b89a4 ada.integer_text_io%s
+D a-ioexce.ads		20240801081713 40018c65 ada.io_exceptions%s
+D a-stream.ads		20240801081713 119b8fb3 ada.streams%s
+D a-string.ads		20240801081713 90ac6797 ada.strings%s
+D a-sttebu.ads		20240801081713 f1ad67a2 ada.strings.text_buffers%s
+D a-stuten.ads		20240801081713 c6ced0ae ada.strings.utf_encoding%s
+D a-tags.ads		20240801081713 9eaa38c6 ada.tags%s
+D a-textio.ads		20240801081713 34ef47de ada.text_io%s
+D a-tiinio.ads		20240801081713 76699c8f ada.text_io.integer_io%s
+D a-unccon.ads		20240801081713 0e9b276f ada.unchecked_conversion%s
+D ada_containers.ads	20240312145141 11329e00 ada_containers%s
+D ada_containers-aunit_lists.ads  20240312145141 d9ebc89a ada_containers.aunit_lists%s
+D ada_sqlite3.ads	20250302212249 64558577 ada_sqlite3%s
+D ada_sqlite3-blobs.ads	20250302211959 1d0d1020 ada_sqlite3.blobs%s
+D aunit.ads		20240312145141 76cdf7c6 aunit%s
+D aunit-assertions.ads	20240312145141 b7f9ecd6 aunit.assertions%s
+D aunit-io.ads		20240312145141 fb5ed18b aunit.io%s
+D aunit-memory.ads	20240312145141 a0315146 aunit.memory%s
+D aunit-memory-utils.ads  20240312145141 5b1e3d11 aunit.memory.utils%s
+D aunit-memory-utils.adb  20240312145141 c00242e3 aunit.memory.utils%b
+D aunit-options.ads	20240312145141 6e5a02a6 aunit.options%s
+D aunit-simple_test_cases.ads  20240312145141 4111c32f aunit.simple_test_cases%s
+D aunit-test_caller.ads	20240312145141 956cfce4 aunit.test_caller%s
+D aunit-test_caller.adb	20240312145141 0f783ccd aunit.test_caller%b
+D aunit-test_filters.ads  20240312145141 f10b2127 aunit.test_filters%s
+D aunit-test_fixtures.ads  20240312145141 faadeab5 aunit.test_fixtures%s
+D aunit-test_results.ads  20240312145141 b44de7dc aunit.test_results%s
+D aunit-test_suites.ads	20240312145141 6821dc24 aunit.test_suites%s
+D aunit-tests.ads	20240312145141 1da11d49 aunit.tests%s
+D aunit-time_measure.ads  20240312145141 d9c247b0 aunit.time_measure%s
+D blob_tests.ads	20250303005757 3592f77d blob_tests%s
+D blob_tests.adb	20250303011414 c0aa6573 blob_tests%b
+D gnat.ads		20240801081713 b5988c27 gnat%s
+D g-souinf.ads		20240801081713 470146ee gnat.source_info%s
+D interfac.ads		20240801081713 9111f9c1 interfaces%s
+D i-cstrea.ads		20240801081713 ffd01b9d interfaces.c_streams%s
+D system.ads		20240801081714 14286b0f system%s
+D s-conca2.ads		20240801081713 b5fb73f7 system.concat_2%s
+D s-conca3.ads		20240801081713 8a7a19a2 system.concat_3%s
+D s-crtl.ads		20240801081713 beb39b9e system.crtl%s
+D s-exctab.ads		20240801081713 91bef6ef system.exception_table%s
+D s-ficobl.ads		20240801081713 dc5161d4 system.file_control_block%s
+D s-finmas.ads		20240801081713 28987ac5 system.finalization_masters%s
+D s-finroo.ads		20240801081713 4ff27390 system.finalization_root%s
+D s-imagei.ads		20240801081713 5e131ce0 system.image_i%s
+D s-imglli.ads		20240801081713 d88f4f3b system.img_lli%s
+D s-memory.ads		20240801081713 18949c1a system.memory%s
+D s-parame.ads		20240801081713 3597fc11 system.parameters%s
+D s-pooglo.ads		20240801081713 91708d21 system.pool_global%s
+D s-putima.ads		20240801081713 17291fe4 system.put_images%s
+D s-retsta.ads		20240801081713 0f6b06cb system.return_stack%s
+D s-secsta.ads		20240801081713 578279f5 system.secondary_stack%s
+D s-soflin.ads		20240801081713 df77073e system.soft_links%s
+D s-stache.ads		20240801081713 0b81c1fe system.stack_checking%s
+D s-stalib.ads		20240801081713 1c9580f6 system.standard_library%s
+D s-stalib.adb		20240801081713 eb464a47 system.standard_library%b
+D s-stoele.ads		20240801081713 ccded4e8 system.storage_elements%s
+D s-stopoo.ads		20240801081713 e9fa2dd8 system.storage_pools%s
+D s-stposu.ads		20240801081713 e251976f system.storage_pools.subpools%s
+D s-stratt.ads		20240801081713 a1861007 system.stream_attributes%s
+D s-traent.ads		20240801081713 c81cbf8c system.traceback_entries%s
+D s-unstyp.ads		20240801081713 fa2a7f59 system.unsigned_types%s
+D s-valspe.ads		20240801081714 b0fcd073 system.val_spec%s
+D s-vaispe.ads		20240801081714 8280550e system.value_i_spec%s
+D s-vauspe.ads		20240801081714 89269ba5 system.value_u_spec%s
+D s-vs_lli.ads		20240801081714 b945cf7d system.vs_lli%s
+D s-vs_llu.ads		20240801081714 8f3536c5 system.vs_llu%s
+D s-wchcon.ads		20240801081714 d9032363 system.wch_con%s
+G a e
+G c b b b [b blob_tests 15 1 none]
+G c Z s b [test_create_blob blob_tests 19 14 none]
+G c Z s b [test_blob_size blob_tests 20 14 none]
+G c Z s b [test_blob_data blob_tests 21 14 none]
+G c Z s b [test_bind_blob blob_tests 22 14 none]
+G c Z s b [test_column_blob blob_tests 23 14 none]
+G c Z s b [test_read_write_blob blob_tests 24 14 none]
+G c Z s b [test_empty_blob blob_tests 25 14 none]
+G c Z s b [test_large_blob blob_tests 26 14 none]
+G c Z s b [suite blob_tests 29 13 none]
+G c Z s s [testDF blob_tests 16 9 none]
+G c Z s s [testIP blob_tests 16 9 none]
+G c Z b b [setup_test_db blob_tests 23 14 none]
+G c Z b b [arrays_equal blob_tests 33 13 none]
+G c Z b b [create blob_tests__caller 85 13 344_4]
+G c Z b b [create blob_tests__caller 91 14 344_4]
+G c Z b b [name blob_tests__caller 98 13 344_4]
+G c Z b b [run_test blob_tests__caller 101 14 344_4]
+G c Z b b [set_up blob_tests__caller 104 14 344_4]
+G c Z b b [tear_down blob_tests__caller 107 14 344_4]
+G c Z b b [test_caseDF blob_tests__caller 115 9 344_4]
+G c Z b b [test_caseIP blob_tests__caller 115 9 344_4]
+G c Z b b [new_fixtureR blob_tests__caller__new_fixtureGP2498 38 13 344_4]
+G c Z b b [new_fixture blob_tests__caller 38 13 344_4]
+G r i none [b blob_tests 15 1 none] [gen_alloc aunit__memory__utils 40 13 none]
+G r i none [b blob_tests 15 1 none] [test_caller aunit 78 15 none]
+G r s test_fixture [b blob_tests 15 1 none] [test_fixtureIP aunit__test_fixtures 88 9 none]
+G r s blob [test_create_blob blob_tests 19 14 none] [blobIP ada_sqlite3__blobs 51 9 none]
+G r f blob [test_create_blob blob_tests 19 14 none] [initialize ada_sqlite3__blobs 56 25 none]
+G r c none [test_create_blob blob_tests 19 14 none] [create ada_sqlite3__blobs 18 13 none]
+G r c none [test_create_blob blob_tests 19 14 none] [size ada_sqlite3__blobs 21 13 none]
+G r c none [test_create_blob blob_tests 19 14 none] [assert aunit__assertions 48 14 none]
+G r c none [test_create_blob blob_tests 19 14 none] [data ada_sqlite3__blobs 24 13 none]
+G r c none [test_blob_size blob_tests 20 14 none] [create ada_sqlite3__blobs 18 13 none]
+G r c none [test_blob_size blob_tests 20 14 none] [size ada_sqlite3__blobs 21 13 none]
+G r c none [test_blob_size blob_tests 20 14 none] [assert aunit__assertions 48 14 none]
+G r c none [test_blob_data blob_tests 21 14 none] [create ada_sqlite3__blobs 18 13 none]
+G r c none [test_blob_data blob_tests 21 14 none] [data ada_sqlite3__blobs 24 13 none]
+G r c none [test_blob_data blob_tests 21 14 none] [assert aunit__assertions 48 14 none]
+G r s database [test_bind_blob blob_tests 22 14 none] [databaseIP ada_sqlite3 211 9 none]
+G r s statement [test_bind_blob blob_tests 22 14 none] [statementIP ada_sqlite3 218 9 none]
+G r c none [test_bind_blob blob_tests 22 14 none] [create ada_sqlite3__blobs 18 13 none]
+G r c none [test_bind_blob blob_tests 22 14 none] [open ada_sqlite3 84 14 none]
+G r c none [test_bind_blob blob_tests 22 14 none] [execute ada_sqlite3 96 14 none]
+G r c none [test_bind_blob blob_tests 22 14 none] [prepare ada_sqlite3 113 14 none]
+G r c none [test_bind_blob blob_tests 22 14 none] [bind_text ada_sqlite3 157 14 none]
+G r c none [test_bind_blob blob_tests 22 14 none] [bind_blob ada_sqlite3__blobs 27 14 none]
+G r c none [test_bind_blob blob_tests 22 14 none] [step ada_sqlite3 131 14 none]
+G r c none [test_bind_blob blob_tests 22 14 none] [finalize_statement ada_sqlite3 119 14 none]
+G r c none [test_bind_blob blob_tests 22 14 none] [step ada_sqlite3 128 13 none]
+G r c none [test_bind_blob blob_tests 22 14 none] [assert aunit__assertions 48 14 none]
+G r c none [test_bind_blob blob_tests 22 14 none] [close ada_sqlite3 90 14 none]
+G r s database [test_column_blob blob_tests 23 14 none] [databaseIP ada_sqlite3 211 9 none]
+G r s statement [test_column_blob blob_tests 23 14 none] [statementIP ada_sqlite3 218 9 none]
+G r c none [test_column_blob blob_tests 23 14 none] [create ada_sqlite3__blobs 18 13 none]
+G r s blob [test_column_blob blob_tests 23 14 none] [blobIP ada_sqlite3__blobs 51 9 none]
+G r f blob [test_column_blob blob_tests 23 14 none] [initialize ada_sqlite3__blobs 56 25 none]
+G r c none [test_column_blob blob_tests 23 14 none] [open ada_sqlite3 84 14 none]
+G r c none [test_column_blob blob_tests 23 14 none] [execute ada_sqlite3 96 14 none]
+G r c none [test_column_blob blob_tests 23 14 none] [prepare ada_sqlite3 113 14 none]
+G r c none [test_column_blob blob_tests 23 14 none] [bind_text ada_sqlite3 157 14 none]
+G r c none [test_column_blob blob_tests 23 14 none] [bind_blob ada_sqlite3__blobs 27 14 none]
+G r c none [test_column_blob blob_tests 23 14 none] [step ada_sqlite3 131 14 none]
+G r c none [test_column_blob blob_tests 23 14 none] [finalize_statement ada_sqlite3 119 14 none]
+G r c none [test_column_blob blob_tests 23 14 none] [step ada_sqlite3 128 13 none]
+G r c none [test_column_blob blob_tests 23 14 none] [assert aunit__assertions 48 14 none]
+G r c none [test_column_blob blob_tests 23 14 none] [column_blob ada_sqlite3__blobs 33 13 none]
+G r c none [test_column_blob blob_tests 23 14 none] [size ada_sqlite3__blobs 21 13 none]
+G r c none [test_column_blob blob_tests 23 14 none] [data ada_sqlite3__blobs 24 13 none]
+G r c none [test_column_blob blob_tests 23 14 none] [close ada_sqlite3 90 14 none]
+G r c none [test_read_write_blob blob_tests 24 14 none] [create ada_sqlite3__blobs 18 13 none]
+G r c none [test_read_write_blob blob_tests 24 14 none] [read_blob ada_sqlite3__blobs 38 14 none]
+G r c none [test_read_write_blob blob_tests 24 14 none] [assert aunit__assertions 48 14 none]
+G r c none [test_read_write_blob blob_tests 24 14 none] [write_blob ada_sqlite3__blobs 43 14 none]
+G r c none [test_read_write_blob blob_tests 24 14 none] [size ada_sqlite3__blobs 21 13 none]
+G r c none [test_read_write_blob blob_tests 24 14 none] [data ada_sqlite3__blobs 24 13 none]
+G r c none [test_empty_blob blob_tests 25 14 none] [create ada_sqlite3__blobs 18 13 none]
+G r s database [test_empty_blob blob_tests 25 14 none] [databaseIP ada_sqlite3 211 9 none]
+G r s statement [test_empty_blob blob_tests 25 14 none] [statementIP ada_sqlite3 218 9 none]
+G r s blob [test_empty_blob blob_tests 25 14 none] [blobIP ada_sqlite3__blobs 51 9 none]
+G r f blob [test_empty_blob blob_tests 25 14 none] [initialize ada_sqlite3__blobs 56 25 none]
+G r c none [test_empty_blob blob_tests 25 14 none] [size ada_sqlite3__blobs 21 13 none]
+G r c none [test_empty_blob blob_tests 25 14 none] [assert aunit__assertions 48 14 none]
+G r c none [test_empty_blob blob_tests 25 14 none] [data ada_sqlite3__blobs 24 13 none]
+G r c none [test_empty_blob blob_tests 25 14 none] [open ada_sqlite3 84 14 none]
+G r c none [test_empty_blob blob_tests 25 14 none] [execute ada_sqlite3 96 14 none]
+G r c none [test_empty_blob blob_tests 25 14 none] [prepare ada_sqlite3 113 14 none]
+G r c none [test_empty_blob blob_tests 25 14 none] [bind_text ada_sqlite3 157 14 none]
+G r c none [test_empty_blob blob_tests 25 14 none] [bind_blob ada_sqlite3__blobs 27 14 none]
+G r c none [test_empty_blob blob_tests 25 14 none] [step ada_sqlite3 131 14 none]
+G r c none [test_empty_blob blob_tests 25 14 none] [finalize_statement ada_sqlite3 119 14 none]
+G r c none [test_empty_blob blob_tests 25 14 none] [step ada_sqlite3 128 13 none]
+G r c none [test_empty_blob blob_tests 25 14 none] [column_blob ada_sqlite3__blobs 33 13 none]
+G r c none [test_empty_blob blob_tests 25 14 none] [close ada_sqlite3 90 14 none]
+G r s blob [test_large_blob blob_tests 26 14 none] [blobIP ada_sqlite3__blobs 51 9 none]
+G r f blob [test_large_blob blob_tests 26 14 none] [initialize ada_sqlite3__blobs 56 25 none]
+G r s database [test_large_blob blob_tests 26 14 none] [databaseIP ada_sqlite3 211 9 none]
+G r s statement [test_large_blob blob_tests 26 14 none] [statementIP ada_sqlite3 218 9 none]
+G r c none [test_large_blob blob_tests 26 14 none] [create ada_sqlite3__blobs 18 13 none]
+G r c none [test_large_blob blob_tests 26 14 none] [size ada_sqlite3__blobs 21 13 none]
+G r c none [test_large_blob blob_tests 26 14 none] [assert aunit__assertions 48 14 none]
+G r c none [test_large_blob blob_tests 26 14 none] [data ada_sqlite3__blobs 24 13 none]
+G r c none [test_large_blob blob_tests 26 14 none] [open ada_sqlite3 84 14 none]
+G r c none [test_large_blob blob_tests 26 14 none] [execute ada_sqlite3 96 14 none]
+G r c none [test_large_blob blob_tests 26 14 none] [prepare ada_sqlite3 113 14 none]
+G r c none [test_large_blob blob_tests 26 14 none] [bind_text ada_sqlite3 157 14 none]
+G r c none [test_large_blob blob_tests 26 14 none] [bind_blob ada_sqlite3__blobs 27 14 none]
+G r c none [test_large_blob blob_tests 26 14 none] [step ada_sqlite3 131 14 none]
+G r c none [test_large_blob blob_tests 26 14 none] [finalize_statement ada_sqlite3 119 14 none]
+G r c none [test_large_blob blob_tests 26 14 none] [step ada_sqlite3 128 13 none]
+G r c none [test_large_blob blob_tests 26 14 none] [column_blob ada_sqlite3__blobs 33 13 none]
+G r c none [test_large_blob blob_tests 26 14 none] [close ada_sqlite3 90 14 none]
+G r s test_suite [suite blob_tests 29 13 none] [test_suiteIP aunit__test_suites 82 9 none]
+G r i none [suite blob_tests 29 13 none] [gen_alloc aunit__memory__utils 40 13 none]
+G r s test_case [suite blob_tests 29 13 none] [test_caseIP aunit__simple_test_cases 75 9 none]
+G r c none [suite blob_tests 29 13 none] [format aunit 44 13 none]
+G r c none [suite blob_tests 29 13 none] [add_test aunit__test_suites 48 14 none]
+G r s test_fixture [testIP blob_tests 16 9 none] [test_fixtureIP aunit__test_fixtures 88 9 none]
+G r c none [setup_test_db blob_tests 23 14 none] [open ada_sqlite3 84 14 none]
+G r c none [setup_test_db blob_tests 23 14 none] [execute ada_sqlite3 96 14 none]
+G r i none [create blob_tests__caller 85 13 344_4] [gen_alloc aunit__memory__utils 40 13 none]
+G r s test_case [create blob_tests__caller 85 13 344_4] [test_caseIP aunit__simple_test_cases 75 9 none]
+G r c none [create blob_tests__caller 85 13 344_4] [format aunit 44 13 none]
+G r c none [create blob_tests__caller 91 14 344_4] [format aunit 44 13 none]
+G r c none [run_test blob_tests__caller 101 14 344_4] [copy_id aunit__assertions 125 14 none]
+G r c none [set_up blob_tests__caller 104 14 344_4] [set_up aunit__test_fixtures 80 14 none]
+G r c none [tear_down blob_tests__caller 107 14 344_4] [tear_down aunit__test_fixtures 83 14 none]
+G r s test_case [test_caseIP blob_tests__caller 115 9 344_4] [test_caseIP aunit__simple_test_cases 75 9 none]
+G r s test_fixture [new_fixtureR blob_tests__caller__new_fixtureGP2498 38 13 344_4] [test_fixtureIP aunit__test_fixtures 88 9 none]
+X 1 ada.ads
+16K9*Ada 20e8 36|11r6 18r8
+X 7 a-stream.ads
+36K13*Streams 87e16 36|11w10 18r12
+42M9*Stream_Element 36|273r28
+44I9*Stream_Element_Offset<long_long_integer> 36|89r15 89r63 93r35 166r14
+. 175r22 187r51 188r22 197r30 202r37 202r87 212r40 213r42 213r88 233r15 233r66
+. 264r29 281r15 309r33 312r32 317r64 323r63 329r33 330r19 333r64
+54A9*Stream_Element_Array(42M9)<44I9> 36|34r15 35r15 53r28 67r29 68r29 69r29
+. 84r28 86r33 102r28 128r28 161r31 165r16 169r29 187r24 225r29 265r20 305r35
+. 306r36
+X 16 ada_containers-aunit_lists.ads
+53R9*Cursor
+X 17 ada_sqlite3.ads
+12K9*Ada_Sqlite3 225e16 36|12w6 13r6 19r8 20r8
+15I9*Result_Code<integer>
+47i4*ROW{15I9} 36|116r29 143r29 247r29 295r29
+68M9*Open_Flag
+70m4*OPEN_READWRITE{68M9} 36|26r29
+71m4*OPEN_CREATE{68M9} 36|26r47
+81R9*Database<4|50R9> 214e14 36|23r41 100r12 126r12 227r12 267r12
+84U14*Open 36|26s7
+90U14*Close 36|120s7 155s7 257s7 340s7
+96U14*Execute 36|29s7
+110R9*Statement<4|50R9> 221e14 36|101r14 127r14 228r14 268r14
+113U14*Prepare 36|108s7 115s7 135s7 142s7 239s7 246s7 287s7 294s7
+119U14*Finalize_Statement 36|112s7 119s7 139s7 154s7 243s7 256s7 291s7 339s7
+128V13*Step{15I9} 36|116s15 143s15 247s15 295s15
+131U14*Step 36|111s7 138s7 242s7 290s7
+157U14*Bind_Text 36|109s7 136s7 240s7 288s7
+X 18 ada_sqlite3-blobs.ads
+12K21*Blobs 60e22 36|13w18 20r20
+15R9*Blob<4|43R9> 54e14 36|54r19 71r29 72r29 73r29 85r28 103r28 129r28 130r24
+. 162r19 226r29 229r24 266r20 269r24
+18V13*Create{15R9} 36|57s20 71s37 72s37 73s37 85s36 103s36 129s36 162s27
+. 191s23 226s37 277s21
+21V13*Size{natural} 36|60s15 76s15 77s15 78s15 149s15 149s39 182s15 187s74
+. 197s53 232s15 253s15 280s15 301s15 301s39
+24V13*Data{7|54A9} 36|61s29 86s57 150s29 150s52 191s31 233s38 281s38 305s59
+. 306s60
+27U14*Bind_Blob 36|110s7 137s7 241s7 289s7
+33V13*Column_Blob{15R9} 36|146s25 250s25 298s25
+38U14*Read_Blob 36|172s7 194s10
+43U14*Write_Blob 36|179s7
+X 19 aunit.ads
+34K9*AUnit 48e10 35|9w6 10r6 11r6 16r21 29r26 36|9r6 10r6 17r8 344r26 346r26
+. 347r25 348r14
+X 20 aunit-assertions.ads
+44K15*Assertions 155e21 36|9w12 17r14
+48U14*Assert 36|60s7 61s7 76s7 77s7 78s7 89s7 92s10 116s7 143s7 149s7 150s7
+. 175s7 176s7 182s7 197s10 204s13 215s16 232s7 233s7 247s7 253s7 280s7 281s7
+. 295s7 301s7 316s13 322s13 332s16
+101U14*Init_Test
+104U14*Clear_Failures
+107V13*Has_Failures{boolean}
+110R9*Failure_Iter<16|53R9[145]>
+113V13*First_Failure{110R9}
+X 27 aunit-test_caller.ads
+78k15*Test_Caller 121e22 36|10w12 344r32
+80R9*Test_Case<26|44R9>
+81P9*Test_Case_Access(80R9[36|344])
+85V13*Create{81P9[36|344]} 36|350s31[344] 351s31[344] 352s31[344] 353s31[344]
+. 354s31[344] 355s31[344] 356s31[344] 357s31[344]
+112P9 Fixture_Access(35|16R9)
+X 28 aunit-test_caller.adb
+38V13 New_Fixture[23|40]{27|112P9[36|344]} 24|38b13[36|344]
+66P12 Access_Type(27|80R9[36|344])
+67V16 Alloc[23|40]{66P12[36|344]} 24|38b13[36|344]
+X 30 aunit-test_fixtures.ads
+76K15*Test_Fixtures 90e24 35|10w12 16r27
+78R9*Test_Fixture<20|96R9> 88e67 35|16r41
+80U14*Set_Up
+83U14*Tear_Down
+X 32 aunit-test_suites.ads
+41K15*Test_Suites 86e22 35|11w12 29r32 36|346r32 347r31 348r20
+43R9*Test_Suite<33|38R9> 84e14 36|348r32
+44P9*Access_Test_Suite(43R9) 35|29r44 36|346r44 347r43
+48U14*Add_Test 36|350s14 351s14 352s14 353s14 354s14 355s14 356s14 357s14
+X 35 blob_tests.ads
+13K9*Blob_Tests 31l5 31e15 36|15b14 362l5 362t15
+16R9*Test<30|78R9> 20|101p14 104p14 107p13 113p13 30|80p14 83p14 35|16e70
+. 19p14 19r43 20p14 20r41 21p14 21r41 22p14 22r41 23p14 23r43 24p14 24r47
+. 25p14 25r42 26p14 26r42 36|51r43 65r41 82r41 98r41 124r43 159r47 223r42
+. 261r42 344r45
+19U14*Test_Create_Blob 19=32 36|51b14 62l8 62t24 350r59
+19r32 T{16R9} 36|51b32 52r28
+20U14*Test_Blob_Size 20=30 36|65b14 79l8 79t22 351r57
+20r30 T{16R9} 36|65b30 66r28
+21U14*Test_Blob_Data 21=30 36|82b14 95l8 95t22 352r57
+21r30 T{16R9} 36|82b30 83r28
+22U14*Test_Bind_Blob 22=30 36|98b14 121l8 121t22 353r57
+22r30 T{16R9} 36|98b30 99r28
+23U14*Test_Column_Blob 23=32 36|124b14 156l8 156t24 354r59
+23r32 T{16R9} 36|124b32 125r28
+24U14*Test_Read_Write_Blob 24=36 36|159b14 220l8 220t28 355r63
+24r36 T{16R9} 36|159b36 160r28
+25U14*Test_Empty_Blob 25=31 36|223b14 258l8 258t23 356r58
+25r31 T{16R9} 36|223b31 224r28
+26U14*Test_Large_Blob 26=31 36|261b14 341l8 341t23 357r58
+26r31 T{16R9} 36|261b31 262r28
+29V13*Suite{32|44P9} 36|346b13 360l8 360t13
+X 36 blob_tests.adb
+23U14 Setup_Test_DB 23b14 23=29 30l8 30t21 105s7 132s7 236s7 284s7
+23r29 DB{17|81R9} 26m13 29m16
+33V13 Arrays_Equal{boolean} 33b13 34>7 35>7 48l8 48t20 61s15 150s15 176s15
+34a7 Left{7|54A9} 37r10 41r16 42r13 42r36
+35a7 Right{7|54A9} 37r25 42r25 42r49
+41i11 I<long_long_integer> 42r19 42r32
+53a7 Test_Data{7|54A9} 57r28 60r43 61r47
+54r7 Test_Blob{18|15R9} 57m7 60r21 61r35
+67a7 Empty_Data{7|54A9} 71r45
+68a7 Small_Data{7|54A9} 72r45
+69a7 Large_Data{7|54A9} 73r45
+71r7 Empty_Blob{18|15R9} 76r21
+72r7 Small_Blob{18|15R9} 77r21
+73r7 Large_Blob{18|15R9} 78r21
+84a7 Test_Data{7|54A9} 85r44 89r86 91r16 92r38 92r80
+85r7 Test_Blob{18|15R9} 86r63
+86a7 Retrieved_Data{7|54A9} 89r38 92r18 92r56
+91i11 I<long_long_integer> 92r34 92r91 93r64
+100r7 DB{17|81R9} 105m22 105r22 108m22 108r22 115m22 115r22 120m14 120r14
+101r7 Stmt{17|110R9} 108m16 108r16 109m18 109r18 110m18 110r18 111m13 111r13
+. 112m27 112r27 115m16 115r16 116m21 116r21 119m27 119r27
+102a7 Test_Data{7|54A9} 103r44
+103r7 Test_Blob{18|15R9} 110r27
+126r7 DB{17|81R9} 132m22 132r22 135m22 135r22 142m22 142r22 155m14 155r14
+127r7 Stmt{17|110R9} 135m16 135r16 136m18 136r18 137m18 137r18 138m13 138r13
+. 139m27 139r27 142m16 142r16 143m21 143r21 146r38 154m27 154r27
+128a7 Test_Data{7|54A9} 129r44
+129r7 Test_Blob{18|15R9} 137r27 149r45 150r58
+130r7 Retrieved_Blob{18|15R9} 146m7 149r21 150r35
+161a7 Initial_Data{7|54A9} 162r35 176r46 182r43 200r16 202r66 204r50 213r65
+162r7 Test_Blob{18|15R9} 172m18 172r18 179m19 179r19 182r21 187r80 191m10
+. 191r37 194m21 194r21 197r59
+165a7 Buffer{7|54A9} 172m29 176r29
+166i7 Last{7|44I9} 172m37 175r15
+169a7 Write_Data{7|54A9} 179r30 182r65 210r19 213r23 215r53
+187a10 Full_Buffer{7|54A9} 194m32 204r21 215r24
+188i10 Full_Last{7|44I9} 194m45 197r18
+200i11 I<long_long_integer> 202r62 204r64
+202i13 Buffer_Index{7|44I9} 204r34
+210i14 I<long_long_integer> 213r19 215r65
+212i16 Buffer_Index{7|44I9} 215r37
+225a7 Empty_Data{7|54A9} 226r45
+226r7 Empty_Blob{18|15R9} 232r21 233r44 241r27
+227r7 DB{17|81R9} 236m22 236r22 239m22 239r22 246m22 246r22 257m14 257r14
+228r7 Stmt{17|110R9} 239m16 239r16 240m18 240r18 241m18 241r18 242m13 242r13
+. 243m27 243r27 246m16 246r16 247m21 247r21 250r38 256m27 256r27
+229r7 Retrieved_Blob{18|15R9} 250m7 253r21
+264i7 Large_Size{7|44I9} 265r47 280r44 281r66 312r57 321r33 330r65
+265a7 Large_Data{7|54A9} 272r16 273m10 277r29
+266r7 Large_Blob{18|15R9} 277m7 280r21 281r44 289r27 301r45 305r65
+267r7 DB{17|81R9} 284m22 284r22 287m22 287r22 294m22 294r22 340m14 340r14
+268r7 Stmt{17|110R9} 287m16 287r16 288m18 288r18 289m18 289r18 290m13 290r13
+. 291m27 291r27 294m16 294r16 295m21 295r21 298r38 339m27 339r27
+269r7 Retrieved_Blob{18|15R9} 298m7 301r21 306r66
+272i11 I<long_long_integer> 273r22 273r44
+305a10 Original_Data{7|54A9} 316r42 322r42 332r49
+306a10 Retrieved_Data{7|54A9} 316r21 322r21 332r24
+309i10 First_Range{7|44I9} 315r24
+312i10 Last_Start{7|44I9} 321r19
+315i14 I<long_long_integer> 316r37 316r57 317r93
+321i14 I<long_long_integer> 322r37 322r57 323r92
+327i14 I{integer} 330r51
+329i16 Index{7|44I9} 332r40 332r64 333r93
+344K12 Caller[27|78] 350r24 351r24 352r24 353r24 354r24 355r24 356r24 357r24
+347p7 Result{32|44P9} 350r7 351r7 352r7 353r7 354r7 355r7 356r7 357r7 359r14
+X 41 system.ads
+67M9*Address
+X 51 s-memory.ads
+51V13*Alloc{41|67M9} 101i<c,__gnat_malloc>22
+66U14*Free 102i<c,__gnat_free>22
+74V13*Realloc{41|67M9} 103i<c,__gnat_realloc>22
+X 60 s-stalib.adb
+87U14 Break_Start 88i<c,__gnat_break_start>22
+

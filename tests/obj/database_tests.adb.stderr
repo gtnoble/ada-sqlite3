@@ -1,0 +1,1 @@
+database_tests.adb:10:09: warning: unit "Ada.Exceptions" is not referenced [-gnatwu]
