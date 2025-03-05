@@ -122,7 +122,6 @@ end Insert_Example;
 ### Database Operations
 
 - `Open` - Open a database connection
-- `Close` - Close a database connection
 - `Execute` - Execute a simple SQL statement
 - `Last_Insert_Row_ID` - Get the ID of the last inserted row
 - `Changes` - Get the number of rows changed by the last statement
@@ -130,7 +129,6 @@ end Insert_Example;
 ### Statement Operations
 
 - `Prepare` - Prepare a SQL statement
-- `Finalize` - Finalize a prepared statement
 - `Reset` - Reset a prepared statement
 - `Clear_Bindings` - Clear all bindings on a prepared statement
 - `Step` - Execute a prepared statement

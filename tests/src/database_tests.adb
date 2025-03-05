@@ -31,18 +31,20 @@ package body Database_Tests is
    --  Test opening and closing a database
    procedure Test_Open_Close (T : in out Test) is
       pragma Unreferenced (T);
-      DB : Database;
    begin
       --  Clean up any existing test file
       Remove_Test_DB;
 
       --  Test opening a file database
-      Open (DB, Test_DB_File, OPEN_READWRITE or OPEN_CREATE);
-      Assert (Is_Open (DB), "Database should be open");
+      declare
+         DB : Database := Open (Test_DB_File, OPEN_READWRITE or OPEN_CREATE);
+      begin
+         Assert (Is_Open (DB), "Database should be open");
 
-      --  Test closing the database
-      Close (DB);
-      Assert (not Is_Open (DB), "Database should be closed");
+         --  Test closing the database
+         Close (DB);
+         Assert (not Is_Open (DB), "Database should be closed");
+      end;
 
       --  Clean up
       Remove_Test_DB;
@@ -51,117 +53,111 @@ package body Database_Tests is
    --  Test in-memory database
    procedure Test_In_Memory_Database (T : in out Test) is
       pragma Unreferenced (T);
-      DB : Database;
    begin
       --  Open an in-memory database
-      Open (DB, ":memory:", OPEN_READWRITE or OPEN_CREATE);
-      Assert (Is_Open (DB), "In-memory database should be open");
-
-      --  Create a table and insert data
-      Execute (DB, "CREATE TABLE test (id INTEGER PRIMARY KEY, value TEXT)");
-      Execute (DB, "INSERT INTO test (value) VALUES ('test value')");
-
-      --  Verify data was inserted
       declare
-         Stmt : Statement;
-         Result : Result_Code;
+         DB : Database := Open (":memory:", OPEN_READWRITE or OPEN_CREATE);
       begin
-         Prepare (Stmt, DB, "SELECT COUNT(*) FROM test");
-         Result := Step (Stmt);
-         Assert (Result = ROW, "Step should return ROW");
-         Assert (Column_Int (Stmt, 0) = 1, "Should have 1 row");
-         Finalize_Statement (Stmt);
-      end;
+         Assert (Is_Open (DB), "In-memory database should be open");
 
-      --  Close the database
-      Close (DB);
+         --  Create a table and insert data
+         Execute (DB, "CREATE TABLE test (id INTEGER PRIMARY KEY, value TEXT)");
+         Execute (DB, "INSERT INTO test (value) VALUES ('test value')");
+
+         --  Verify data was inserted
+         declare
+            Stmt : Statement;
+            Result : Result_Code;
+         begin
+            Stmt := Prepare (DB, "SELECT COUNT(*) FROM test");
+            Result := Step (Stmt);
+            Assert (Result = ROW, "Step should return ROW");
+            Assert (Column_Int (Stmt, 0) = 1, "Should have 1 row");
+         end;
+
+         --  Close the database
+      end;
    end Test_In_Memory_Database;
 
    --  Test executing SQL statements
    procedure Test_Execute (T : in out Test) is
       pragma Unreferenced (T);
-      DB : Database;
    begin
       --  Open an in-memory database
-      Open (DB, ":memory:", OPEN_READWRITE or OPEN_CREATE);
-
-      --  Execute multiple statements
-      Execute (DB, "CREATE TABLE test (id INTEGER PRIMARY KEY, value TEXT)");
-      Execute (DB, "INSERT INTO test (value) VALUES ('value1')");
-      Execute (DB, "INSERT INTO test (value) VALUES ('value2')");
-
-      --  Verify data was inserted
       declare
-         Stmt : Statement;
-         Result : Result_Code;
-         Count : Integer := 0;
+         DB : Database := Open (":memory:", OPEN_READWRITE or OPEN_CREATE);
       begin
-         Prepare (Stmt, DB, "SELECT * FROM test");
-         
-         loop
-            Result := Step (Stmt);
-            exit when Result = DONE;
-            
-            if Result = ROW then
-               Count := Count + 1;
-            end if;
-         end loop;
-         
-         Assert (Count = 2, "Should have 2 rows");
-         Finalize_Statement (Stmt);
-      end;
+         --  Execute multiple statements
+         Execute (DB, "CREATE TABLE test (id INTEGER PRIMARY KEY, value TEXT)");
+         Execute (DB, "INSERT INTO test (value) VALUES ('value1')");
+         Execute (DB, "INSERT INTO test (value) VALUES ('value2')");
 
-      --  Close the database
-      Close (DB);
+         --  Verify data was inserted
+         declare
+            Stmt : Statement;
+            Result : Result_Code;
+            Count : Integer := 0;
+         begin
+            Stmt := Prepare (DB, "SELECT * FROM test");
+            
+            loop
+               Result := Step (Stmt);
+               exit when Result = DONE;
+               
+               if Result = ROW then
+                  Count := Count + 1;
+               end if;
+            end loop;
+            
+            Assert (Count = 2, "Should have 2 rows");
+         end;
+
+      end;
    end Test_Execute;
 
    --  Test last insert row ID
    procedure Test_Last_Insert_Row_ID (T : in out Test) is
       pragma Unreferenced (T);
-      DB : Database;
    begin
       --  Open an in-memory database
-      Open (DB, ":memory:", OPEN_READWRITE or OPEN_CREATE);
+      declare
+         DB : Database := Open (":memory:", OPEN_READWRITE or OPEN_CREATE);
+      begin
+         --  Create a table and insert data
+         Execute (DB, "CREATE TABLE test (id INTEGER PRIMARY KEY, value TEXT)");
+         Execute (DB, "INSERT INTO test (value) VALUES ('test value')");
 
-      --  Create a table and insert data
-      Execute (DB, "CREATE TABLE test (id INTEGER PRIMARY KEY, value TEXT)");
-      Execute (DB, "INSERT INTO test (value) VALUES ('test value')");
+         --  Check last insert row ID
+         Assert (Last_Insert_Row_ID (DB) = 1, "Last insert row ID should be 1");
 
-      --  Check last insert row ID
-      Assert (Last_Insert_Row_ID (DB) = 1, "Last insert row ID should be 1");
+         --  Insert another row
+         Execute (DB, "INSERT INTO test (value) VALUES ('another value')");
 
-      --  Insert another row
-      Execute (DB, "INSERT INTO test (value) VALUES ('another value')");
-
-      --  Check last insert row ID
-      Assert (Last_Insert_Row_ID (DB) = 2, "Last insert row ID should be 2");
-
-      --  Close the database
-      Close (DB);
+         --  Check last insert row ID
+         Assert (Last_Insert_Row_ID (DB) = 2, "Last insert row ID should be 2");
+      end;
    end Test_Last_Insert_Row_ID;
 
    --  Test changes count
    procedure Test_Changes (T : in out Test) is
       pragma Unreferenced (T);
-      DB : Database;
    begin
       --  Open an in-memory database
-      Open (DB, ":memory:", OPEN_READWRITE or OPEN_CREATE);
+      declare
+         DB : Database := Open (":memory:", OPEN_READWRITE or OPEN_CREATE);
+      begin
+         --  Create a table and insert data
+         Execute (DB, "CREATE TABLE test (id INTEGER PRIMARY KEY, value TEXT)");
+         Execute (DB, "INSERT INTO test (value) VALUES ('value1')");
+         Execute (DB, "INSERT INTO test (value) VALUES ('value2')");
+         Execute (DB, "INSERT INTO test (value) VALUES ('value3')");
 
-      --  Create a table and insert data
-      Execute (DB, "CREATE TABLE test (id INTEGER PRIMARY KEY, value TEXT)");
-      Execute (DB, "INSERT INTO test (value) VALUES ('value1')");
-      Execute (DB, "INSERT INTO test (value) VALUES ('value2')");
-      Execute (DB, "INSERT INTO test (value) VALUES ('value3')");
+         --  Update rows
+         Execute (DB, "UPDATE test SET value = 'updated'");
 
-      --  Update rows
-      Execute (DB, "UPDATE test SET value = 'updated'");
-
-      --  Check number of changes
-      Assert (Changes (DB) = 3, "Changes should be 3");
-
-      --  Close the database
-      Close (DB);
+         --  Check number of changes
+         Assert (Changes (DB) = 3, "Changes should be 3");
+      end;
    end Test_Changes;
 
    --  Test version string
@@ -176,12 +172,16 @@ package body Database_Tests is
    --  Test invalid database
    procedure Test_Invalid_Database (T : in out Test) is
       pragma Unreferenced (T);
-      DB : Database;
       Exception_Raised : Boolean := False;
    begin
       --  Try to open a database in a non-existent directory
       begin
-         Open (DB, "/non/existent/path/db.sqlite", OPEN_READWRITE);
+         declare
+            DB : Database := Open ("/non/existent/path/db.sqlite", OPEN_READWRITE);
+            pragma Unreferenced (DB);
+         begin
+            null;
+         end;
       exception
          when SQLite_Error =>
             Exception_Raised := True;
@@ -194,25 +194,23 @@ package body Database_Tests is
    --  Test invalid SQL
    procedure Test_Invalid_SQL (T : in out Test) is
       pragma Unreferenced (T);
-      DB : Database;
       Exception_Raised : Boolean := False;
    begin
       --  Open an in-memory database
-      Open (DB, ":memory:", OPEN_READWRITE or OPEN_CREATE);
-
-      --  Try to execute invalid SQL
+      declare
+         DB : Database := Open (":memory:", OPEN_READWRITE or OPEN_CREATE);
       begin
-         Execute (DB, "CREATE INVALID SYNTAX");
-      exception
-         when SQLite_Error =>
-            Exception_Raised := True;
+         --  Try to execute invalid SQL
+         begin
+            Execute (DB, "CREATE INVALID SYNTAX");
+         exception
+            when SQLite_Error =>
+               Exception_Raised := True;
+         end;
+
+         --  Check that an exception was raised
+         Assert (Exception_Raised, "Exception should be raised for invalid SQL");
       end;
-
-      --  Check that an exception was raised
-      Assert (Exception_Raised, "Exception should be raised for invalid SQL");
-
-      --  Close the database
-      Close (DB);
    end Test_Invalid_SQL;
 
    --  Register test routines to call

@@ -81,13 +81,9 @@ package Ada_Sqlite3 is
    type Database is tagged limited private;
 
    --  Open a new database connection
-   procedure Open
-     (DB       : in out Database;
-      Filename : String;
-      Flags    : Open_Flag := OPEN_READWRITE or OPEN_CREATE);
-
-   --  Close a database connection
-   procedure Close (DB : in out Database);
+   function Open
+     (Filename : String;
+      Flags    : Open_Flag := OPEN_READWRITE or OPEN_CREATE) return Database;
 
    --  Check if the database connection is open
    function Is_Open (DB : Database) return Boolean;
@@ -110,13 +106,9 @@ package Ada_Sqlite3 is
    type Statement is tagged limited private;
 
    --  Prepare a SQL statement
-   procedure Prepare
-     (Stmt : in out Statement'Class;
-      DB   : in out Database;
-      SQL  : String);
-
-   --  Finalize a prepared statement (release resources)
-   procedure Finalize_Statement (Stmt : in out Statement'Class);
+   function Prepare
+     (DB   : in out Database;
+      SQL  : String) return Statement;
 
    --  Reset a prepared statement
    procedure Reset (Stmt : in out Statement);
@@ -213,12 +205,18 @@ private
       Is_Open_Flag : Boolean := False;
    end record;
 
+   --  Close a database connection
+   procedure Close (DB : in out Database);
+
    overriding procedure Finalize (DB : in out Database);
 
    type Statement is new Ada.Finalization.Limited_Controlled with record
       Handle      : System.Address := System.Null_Address;
       DB          : Database_Access := null;
    end record;
+    
+   --  Finalize a prepared statement (release resources)
+   procedure Finalize_Statement (Stmt : in out Statement'Class);
 
    overriding procedure Finalize (Stmt : in out Statement);
 

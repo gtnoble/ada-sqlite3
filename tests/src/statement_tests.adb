@@ -38,16 +38,16 @@ package body Statement_Tests is
       Setup_Test_DB (DB);
       
       --  Test preparing a statement
-      Prepare (Stmt, DB, "SELECT * FROM test");
+      Stmt := Prepare (DB, "SELECT * FROM test");
       
       --  Finalize the statement
-      Finalize_Statement (Stmt);
+      
       
       --  Prepare another statement
-      Prepare (Stmt, DB, "SELECT COUNT(*) FROM test");
+      Stmt := Prepare (DB, "SELECT COUNT(*) FROM test");
       
       --  Let the statement be finalized automatically
-      Close (DB);
+      
    end Test_Prepare_Finalize;
 
    --  Test resetting and clearing bindings
@@ -62,7 +62,7 @@ package body Statement_Tests is
       Setup_Test_DB (DB);
       
       --  Prepare a parameterized statement
-      Prepare (Stmt, DB, "SELECT * FROM test WHERE int_val > ?");
+      Stmt := Prepare (DB, "SELECT * FROM test WHERE int_val > ?");
       
       --  Bind a parameter and execute
       Bind_Int (Stmt, 1, 0);
@@ -118,8 +118,8 @@ package body Statement_Tests is
       Assert (Binding_Error, "Exception should be raised when parameter not bound");
       
       --  Clean up
-      Finalize_Statement (Stmt);
-      Close (DB);
+      
+      
    end Test_Reset_Clear_Bindings;
 
    --  Test stepping through results
@@ -133,7 +133,7 @@ package body Statement_Tests is
       Setup_Test_DB (DB);
       
       --  Prepare a statement
-      Prepare (Stmt, DB, "SELECT * FROM test ORDER BY id");
+      Stmt := Prepare (DB, "SELECT * FROM test ORDER BY id");
       
       --  Step through results
       Count := 0;
@@ -161,8 +161,8 @@ package body Statement_Tests is
       Assert (Count = 2, "Should have 2 rows");
       
       --  Clean up
-      Finalize_Statement (Stmt);
-      Close (DB);
+      
+      
    end Test_Step;
 
    --  Test binding NULL values
@@ -175,7 +175,7 @@ package body Statement_Tests is
       Setup_Test_DB (DB);
       
       --  Prepare an insert statement
-      Prepare (Stmt1, DB, "INSERT INTO test (int_val, real_val, text_val, null_val) VALUES (?, ?, ?, ?)");
+      Stmt1 := Prepare (DB, "INSERT INTO test (int_val, real_val, text_val, null_val) VALUES (?, ?, ?, ?)");
       
       --  Bind parameters with NULL
       Bind_Int (Stmt1, 1, 999);
@@ -185,10 +185,9 @@ package body Statement_Tests is
       
       --  Execute
       Step (Stmt1);
-      Finalize_Statement (Stmt1);
       
       --  Verify the inserted row
-      Prepare (Stmt2, DB, "SELECT * FROM test WHERE int_val = 999");
+      Stmt2 := Prepare (DB, "SELECT * FROM test WHERE int_val = 999");
       Result := Step (Stmt2);
       
       --  Should have a row
@@ -199,8 +198,7 @@ package body Statement_Tests is
       Assert (Column_Is_Null (Stmt2, 4), "null_val should be NULL");
       
       --  Clean up
-      Finalize_Statement (Stmt2);
-      Close (DB);
+      
    end Test_Bind_Null;
 
    --  Test binding integer values
@@ -213,17 +211,16 @@ package body Statement_Tests is
       Setup_Test_DB (DB);
       
       --  Prepare an insert statement
-      Prepare (Stmt1, DB, "INSERT INTO test (int_val) VALUES (?)");
+      Stmt1 := Prepare (DB, "INSERT INTO test (int_val) VALUES (?)");
       
       --  Bind integer parameter
       Bind_Int (Stmt1, 1, 12345);
       
       --  Execute
       Step (Stmt1);
-      Finalize_Statement (Stmt1);
       
       --  Verify the inserted row
-      Prepare (Stmt2, DB, "SELECT int_val FROM test WHERE int_val = 12345");
+      Stmt2 := Prepare (DB, "SELECT int_val FROM test WHERE int_val = 12345");
       Result := Step (Stmt2);
       
       --  Should have a row
@@ -231,8 +228,7 @@ package body Statement_Tests is
       Assert (Column_Int (Stmt2, 0) = 12345, "int_val should be 12345");
       
       --  Clean up
-      Finalize_Statement (Stmt2);
-      Close (DB);
+      
    end Test_Bind_Int;
 
    --  Test binding 64-bit integer values
@@ -246,17 +242,16 @@ package body Statement_Tests is
       Setup_Test_DB (DB);
       
       --  Prepare an insert statement
-      Prepare (Stmt1, DB, "INSERT INTO test (int_val) VALUES (?)");
+      Stmt1 := Prepare (DB, "INSERT INTO test (int_val) VALUES (?)");
       
       --  Bind 64-bit integer parameter
       Bind_Int64 (Stmt1, 1, Big_Value);
       
       --  Execute
       Step (Stmt1);
-      Finalize_Statement (Stmt1);
       
       --  Verify the inserted row
-      Prepare (Stmt2, DB, "SELECT int_val FROM test WHERE int_val = ?");
+      Stmt2 := Prepare (DB, "SELECT int_val FROM test WHERE int_val = ?");
       Bind_Int64 (Stmt2, 1, Big_Value);
       Result := Step (Stmt2);
       
@@ -265,8 +260,7 @@ package body Statement_Tests is
       Assert (Column_Int64 (Stmt2, 0) = Big_Value, "int_val should be Big_Value");
       
       --  Clean up
-      Finalize_Statement (Stmt2);
-      Close (DB);
+      
    end Test_Bind_Int64;
 
    --  Test binding floating-point values
@@ -280,17 +274,16 @@ package body Statement_Tests is
       Setup_Test_DB (DB);
       
       --  Prepare an insert statement
-      Prepare (Stmt1, DB, "INSERT INTO test (real_val) VALUES (?)");
+      Stmt1 := Prepare (DB, "INSERT INTO test (real_val) VALUES (?)");
       
       --  Bind double parameter
       Bind_Double (Stmt1, 1, Pi);
       
       --  Execute
       Step (Stmt1);
-      Finalize_Statement (Stmt1);
       
       --  Verify the inserted row
-      Prepare (Stmt2, DB, "SELECT real_val FROM test WHERE abs(real_val - ?) < 0.0001");
+      Stmt2 := Prepare (DB, "SELECT real_val FROM test WHERE abs(real_val - ?) < 0.0001");
       Bind_Double (Stmt2, 1, Pi);
       Result := Step (Stmt2);
       
@@ -299,8 +292,7 @@ package body Statement_Tests is
       Assert (abs (Column_Double (Stmt2, 0) - Pi) < 0.0001, "real_val should be Pi");
       
       --  Clean up
-      Finalize_Statement (Stmt2);
-      Close (DB);
+      
    end Test_Bind_Double;
 
    --  Test binding text values
@@ -317,7 +309,7 @@ package body Statement_Tests is
       Execute (DB, "INSERT INTO test (text_val) VALUES ('" & Text_Value & "')");
       
       --  Verify the inserted row using a statement
-      Prepare (Stmt2, DB, "SELECT text_val FROM test WHERE text_val = ?");
+      Stmt2 := Prepare (DB, "SELECT text_val FROM test WHERE text_val = ?");
       Bind_Text (Stmt2, 1, Text_Value);
       Result := Step (Stmt2);
       
@@ -326,8 +318,7 @@ package body Statement_Tests is
       Assert (Column_Text (Stmt2, 0) = Text_Value, "text_val should be Text_Value");
       
       --  Clean up
-      Finalize_Statement (Stmt2);
-      Close (DB);
+      
    end Test_Bind_Text;
 
    --  Test binding parameters by name
@@ -341,7 +332,7 @@ package body Statement_Tests is
       Setup_Test_DB (DB);
       
       --  Prepare a statement with named parameters
-      Prepare (Stmt, DB, "SELECT * FROM test WHERE int_val = :value");
+      Stmt := Prepare (DB, "SELECT * FROM test WHERE int_val = :value");
       
       --  Get parameter index
       Bind_Parameter_Index (Stmt, ":value", Param_Index);
@@ -357,8 +348,8 @@ package body Statement_Tests is
       Assert (Column_Int (Stmt, 1) = 42, "int_val should be 42");
       
       --  Clean up
-      Finalize_Statement (Stmt);
-      Close (DB);
+      
+      
    end Test_Bind_Parameter_Index;
 
    --  Test getting column count
@@ -370,21 +361,21 @@ package body Statement_Tests is
       Setup_Test_DB (DB);
       
       --  Prepare a statement
-      Prepare (Stmt, DB, "SELECT * FROM test");
+      Stmt := Prepare (DB, "SELECT * FROM test");
       
       --  Check column count
       Assert (Column_Count (Stmt) = 5, "Should have 5 columns");
       
       --  Prepare a different statement
-      Finalize_Statement (Stmt);
-      Prepare (Stmt, DB, "SELECT int_val, text_val FROM test");
+      
+      Stmt := Prepare (DB, "SELECT int_val, text_val FROM test");
       
       --  Check column count
       Assert (Column_Count (Stmt) = 2, "Should have 2 columns");
       
       --  Clean up
-      Finalize_Statement (Stmt);
-      Close (DB);
+      
+      
    end Test_Column_Count;
 
    --  Test getting column names
@@ -396,7 +387,7 @@ package body Statement_Tests is
       Setup_Test_DB (DB);
       
       --  Prepare a statement
-      Prepare (Stmt, DB, "SELECT id, int_val, real_val, text_val, null_val FROM test");
+      Stmt := Prepare (DB, "SELECT id, int_val, real_val, text_val, null_val FROM test");
       
       --  Check column names
       Assert (Column_Name (Stmt, 0) = "id", "Column 0 should be 'id'");
@@ -406,8 +397,8 @@ package body Statement_Tests is
       Assert (Column_Name (Stmt, 4) = "null_val", "Column 4 should be 'null_val'");
       
       --  Clean up
-      Finalize_Statement (Stmt);
-      Close (DB);
+      
+      
    end Test_Column_Name;
 
    --  Test getting column types
@@ -420,7 +411,7 @@ package body Statement_Tests is
       Setup_Test_DB (DB);
       
       --  Prepare a statement
-      Prepare (Stmt, DB, "SELECT id, int_val, real_val, text_val, null_val FROM test LIMIT 1");
+      Stmt := Prepare (DB, "SELECT id, int_val, real_val, text_val, null_val FROM test LIMIT 1");
       
       --  Execute
       Result := Step (Stmt);
@@ -434,8 +425,8 @@ package body Statement_Tests is
       Assert (Get_Column_Type (Stmt, 4) = Null_Type, "Column 4 should be Null_Type");
       
       --  Clean up
-      Finalize_Statement (Stmt);
-      Close (DB);
+      
+      
    end Test_Column_Type;
 
    --  Test getting integer column values
@@ -448,7 +439,7 @@ package body Statement_Tests is
       Setup_Test_DB (DB);
       
       --  Prepare a statement
-      Prepare (Stmt, DB, "SELECT int_val FROM test WHERE int_val = 42");
+      Stmt := Prepare (DB, "SELECT int_val FROM test WHERE int_val = 42");
       
       --  Execute
       Result := Step (Stmt);
@@ -458,8 +449,8 @@ package body Statement_Tests is
       Assert (Column_Int (Stmt, 0) = 42, "int_val should be 42");
       
       --  Clean up
-      Finalize_Statement (Stmt);
-      Close (DB);
+      
+      
    end Test_Column_Int;
 
    --  Test getting 64-bit integer column values
@@ -476,7 +467,7 @@ package body Statement_Tests is
       Execute (DB, "INSERT INTO test (int_val) VALUES (" & Big_Value'Image & ")");
       
       --  Prepare a statement
-      Prepare (Stmt, DB, "SELECT int_val FROM test WHERE int_val = " & Big_Value'Image);
+      Stmt := Prepare (DB, "SELECT int_val FROM test WHERE int_val = " & Big_Value'Image);
       
       --  Execute
       Result := Step (Stmt);
@@ -486,8 +477,8 @@ package body Statement_Tests is
       Assert (Column_Int64 (Stmt, 0) = Big_Value, "int_val should be Big_Value");
       
       --  Clean up
-      Finalize_Statement (Stmt);
-      Close (DB);
+      
+      
    end Test_Column_Int64;
 
    --  Test getting floating-point column values
@@ -500,7 +491,7 @@ package body Statement_Tests is
       Setup_Test_DB (DB);
       
       --  Prepare a statement
-      Prepare (Stmt, DB, "SELECT real_val FROM test WHERE abs(real_val - 3.14) < 0.01");
+      Stmt := Prepare (DB, "SELECT real_val FROM test WHERE abs(real_val - 3.14) < 0.01");
       
       --  Execute
       Result := Step (Stmt);
@@ -510,8 +501,8 @@ package body Statement_Tests is
       Assert (abs (Column_Double (Stmt, 0) - 3.14) < 0.01, "real_val should be approximately 3.14");
       
       --  Clean up
-      Finalize_Statement (Stmt);
-      Close (DB);
+      
+      
    end Test_Column_Double;
 
    --  Test getting text column values
@@ -524,7 +515,7 @@ package body Statement_Tests is
       Setup_Test_DB (DB);
       
       --  Prepare a statement
-      Prepare (Stmt, DB, "SELECT text_val FROM test WHERE text_val = 'hello'");
+      Stmt := Prepare (DB, "SELECT text_val FROM test WHERE text_val = 'hello'");
       
       --  Execute
       Result := Step (Stmt);
@@ -534,8 +525,8 @@ package body Statement_Tests is
       Assert (Column_Text (Stmt, 0) = "hello", "text_val should be 'hello'");
       
       --  Clean up
-      Finalize_Statement (Stmt);
-      Close (DB);
+      
+      
    end Test_Column_Text;
 
    --  Test checking for NULL column values
@@ -548,7 +539,7 @@ package body Statement_Tests is
       Setup_Test_DB (DB);
       
       --  Prepare a statement
-      Prepare (Stmt, DB, "SELECT null_val FROM test LIMIT 1");
+      Stmt := Prepare (DB, "SELECT null_val FROM test LIMIT 1");
       
       --  Execute
       Result := Step (Stmt);
@@ -558,8 +549,8 @@ package body Statement_Tests is
       Assert (Column_Is_Null (Stmt, 0), "null_val should be NULL");
       
       --  Clean up
-      Finalize_Statement (Stmt);
-      Close (DB);
+      
+      
    end Test_Column_Is_Null;
 
    --  Test invalid statement operations
@@ -584,7 +575,7 @@ package body Statement_Tests is
       --  Try to prepare an invalid SQL statement
       Exception_Raised := False;
       begin
-         Prepare (Stmt, DB, "SELECT * FROM nonexistent_table");
+         Stmt := Prepare (DB, "SELECT * FROM nonexistent_table");
          Step (Stmt);
       exception
          when SQLite_Error =>
@@ -593,7 +584,7 @@ package body Statement_Tests is
       Assert (Exception_Raised, "Exception should be raised for invalid SQL");
       
       --  Clean up
-      Close (DB);
+      
    end Test_Invalid_Statement;
 
    --  Register test routines to call

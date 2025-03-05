@@ -18,8 +18,6 @@ procedure Blob_Example is
    use Ada_Sqlite3;
    use Ada_Sqlite3.Blobs;
 
-   DB : Database;
-   Stmt : Statement;
    Result : Result_Code;
 
    --  Create some sample binary data
@@ -47,63 +45,62 @@ begin
    Put_Line ("Opening database...");
 
    --  Open an in-memory database
-   Open (DB, ":memory:", READWRITE or CREATE);
-   Put_Line ("Database opened successfully");
+   declare
+      DB : Database := Open (":memory:", OPEN_READWRITE or OPEN_CREATE);
+   begin
+      Put_Line ("Database opened successfully");
 
-   --  Create a table with a BLOB column
-   Put_Line ("Creating table...");
-   Execute (DB, "CREATE TABLE blobs (id INTEGER PRIMARY KEY, name TEXT, data BLOB)");
+      --  Create a table with a BLOB column
+      Put_Line ("Creating table...");
+      Execute (DB, "CREATE TABLE blobs (id INTEGER PRIMARY KEY, name TEXT, data BLOB)");
 
-   --  Insert data using prepared statement
-   Put_Line ("Inserting BLOB data...");
-   Prepare (Stmt, DB, "INSERT INTO blobs (name, data) VALUES (?, ?)");
+      --  Insert data using prepared statement
+      Put_Line ("Inserting BLOB data...");
+      declare
+         Stmt : Statement := Prepare (DB, "INSERT INTO blobs (name, data) VALUES (?, ?)");
+      begin
+         --  Insert first record
+         Bind_Text (Stmt, 1, "Sample BLOB");
+         Bind_Blob (Stmt, 2, Sample_Blob);
+         Step (Stmt);
+      end;
 
-   --  Insert first record
-   Bind_Text (Stmt, 1, "Sample BLOB");
-   Bind_Blob (Stmt, 2, Sample_Blob);
-   Step (Stmt);
-   Finalize (Stmt);
+      --  Query data
+      Put_Line ("Querying BLOB data...");
+      declare
+         Stmt : Statement := Prepare (DB, "SELECT id, name, data FROM blobs");
+      begin
+         --  Fetch rows
+         loop
+         Result := Step (Stmt);
+         exit when Result = DONE;
 
-   --  Query data
-   Put_Line ("Querying BLOB data...");
-   Prepare (Stmt, DB, "SELECT id, name, data FROM blobs");
+         if Result = ROW then
+            --  Print row data
+            Put_Line ("ID: " & Column_Int (Stmt, 0)'Image);
+            Put_Line ("Name: " & Column_Text (Stmt, 1));
+            
+            --  Get and print BLOB data
+            declare
+               Blob_Data : constant Blob := Column_Blob (Stmt, 2);
+               Raw_Data : constant Stream_Element_Array := Data (Blob_Data);
+            begin
+               Put_Line ("BLOB Size: " & Size (Blob_Data)'Image & " bytes");
+               Put_Line ("BLOB Data (hex):");
+               Print_Hex (Raw_Data);
+            end;
+         end if;
+      end loop;
 
-   --  Fetch rows
-   loop
-      Result := Step (Stmt);
-      exit when Result = DONE;
-
-      if Result = ROW then
-         --  Print row data
-         Put_Line ("ID: " & Column_Int (Stmt, 0)'Image);
-         Put_Line ("Name: " & Column_Text (Stmt, 1));
-         
-         --  Get and print BLOB data
-         declare
-            Blob_Data : constant Blob := Column_Blob (Stmt, 2);
-            Raw_Data : constant Stream_Element_Array := Data (Blob_Data);
-         begin
-            Put_Line ("BLOB Size: " & Size (Blob_Data)'Image & " bytes");
-            Put_Line ("BLOB Data (hex):");
-            Print_Hex (Raw_Data);
-         end;
-      end if;
-   end loop;
-
-   --  Clean up
-   Finalize (Stmt);
-   Close (DB);
-   Put_Line ("Database closed");
+         --  Clean up
+      end;
+      
+      Put_Line ("Database closed");
+   end;
 
 exception
    when E : SQLite_Error =>
       Put_Line ("SQLite error: " & Ada.Exceptions.Exception_Message (E));
-      if Is_Open (DB) then
-         Close (DB);
-      end if;
    when E : others =>
       Put_Line ("Error: " & Ada.Exceptions.Exception_Message (E));
-      if Is_Open (DB) then
-         Close (DB);
-      end if;
 end Blob_Example;

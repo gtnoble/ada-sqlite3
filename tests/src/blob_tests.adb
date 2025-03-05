@@ -105,19 +105,19 @@ package body Blob_Tests is
       Setup_Test_DB (DB);
       
       --  Insert a blob
-      Prepare (Stmt, DB, "INSERT INTO test_blobs (name, data) VALUES (?, ?)");
+      Stmt := Prepare (DB, "INSERT INTO test_blobs (name, data) VALUES (?, ?)");
       Bind_Text (Stmt, 1, "Test Blob");
       Bind_Blob (Stmt, 2, Test_Blob);
       Step (Stmt);
-      Finalize_Statement (Stmt);
+      
       
       --  Verify the blob was inserted
-      Prepare (Stmt, DB, "SELECT data FROM test_blobs WHERE name = 'Test Blob'");
+      Stmt := Prepare (DB, "SELECT data FROM test_blobs WHERE name = 'Test Blob'");
       Assert (Step (Stmt) = ROW, "Should have a row with the inserted blob");
       
       --  Clean up
-      Finalize_Statement (Stmt);
-      Close (DB);
+      
+      
    end Test_Bind_Blob;
 
    --  Test retrieving a blob from a column
@@ -132,14 +132,14 @@ package body Blob_Tests is
       Setup_Test_DB (DB);
       
       --  Insert a blob
-      Prepare (Stmt, DB, "INSERT INTO test_blobs (name, data) VALUES (?, ?)");
+      Stmt := Prepare (DB, "INSERT INTO test_blobs (name, data) VALUES (?, ?)");
       Bind_Text (Stmt, 1, "Test Blob");
       Bind_Blob (Stmt, 2, Test_Blob);
       Step (Stmt);
-      Finalize_Statement (Stmt);
+      
       
       --  Retrieve the blob
-      Prepare (Stmt, DB, "SELECT data FROM test_blobs WHERE name = 'Test Blob'");
+      Stmt := Prepare (DB, "SELECT data FROM test_blobs WHERE name = 'Test Blob'");
       Assert (Step (Stmt) = ROW, "Should have a row with the inserted blob");
       
       --  Get the blob from the column
@@ -151,8 +151,8 @@ package body Blob_Tests is
              "Retrieved blob data should match original");
       
       --  Clean up
-      Finalize_Statement (Stmt);
-      Close (DB);
+      
+      
    end Test_Column_Blob;
 
    --  Test reading and writing blobs
@@ -236,14 +236,14 @@ package body Blob_Tests is
       Setup_Test_DB (DB);
       
       --  Insert an empty blob
-      Prepare (Stmt, DB, "INSERT INTO test_blobs (name, data) VALUES (?, ?)");
+      Stmt := Prepare (DB, "INSERT INTO test_blobs (name, data) VALUES (?, ?)");
       Bind_Text (Stmt, 1, "Empty Blob");
       Bind_Blob (Stmt, 2, Empty_Blob);
       Step (Stmt);
-      Finalize_Statement (Stmt);
+      
       
       --  Retrieve the empty blob
-      Prepare (Stmt, DB, "SELECT data FROM test_blobs WHERE name = 'Empty Blob'");
+      Stmt := Prepare (DB, "SELECT data FROM test_blobs WHERE name = 'Empty Blob'");
       Assert (Step (Stmt) = ROW, "Should have a row with the empty blob");
       
       --  Get the blob from the column
@@ -253,8 +253,8 @@ package body Blob_Tests is
       Assert (Size (Retrieved_Blob) = 0, "Retrieved empty blob size should be 0");
       
       --  Clean up
-      Finalize_Statement (Stmt);
-      Close (DB);
+      
+      
    end Test_Empty_Blob;
 
    --  Test large blob
@@ -284,14 +284,14 @@ package body Blob_Tests is
       Setup_Test_DB (DB);
       
       --  Insert a large blob
-      Prepare (Stmt, DB, "INSERT INTO test_blobs (name, data) VALUES (?, ?)");
+      Stmt := Prepare (DB, "INSERT INTO test_blobs (name, data) VALUES (?, ?)");
       Bind_Text (Stmt, 1, "Large Blob");
       Bind_Blob (Stmt, 2, Large_Blob);
       Step (Stmt);
-      Finalize_Statement (Stmt);
+      
       
       --  Retrieve the large blob
-      Prepare (Stmt, DB, "SELECT data FROM test_blobs WHERE name = 'Large Blob'");
+      Stmt := Prepare (DB, "SELECT data FROM test_blobs WHERE name = 'Large Blob'");
       Assert (Step (Stmt) = ROW, "Should have a row with the large blob");
       
       --  Get the blob from the column
@@ -336,8 +336,8 @@ package body Blob_Tests is
       end;
       
       --  Clean up
-      Finalize_Statement (Stmt);
-      Close (DB);
+      
+      
    end Test_Large_Blob;
 
    --  Register test routines to call

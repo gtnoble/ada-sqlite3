@@ -31,7 +31,7 @@ package body Transaction_Tests is
       Result : Result_Code;
       Count : Integer;
    begin
-      Prepare (Stmt, DB, "SELECT COUNT(*) FROM test");
+      Stmt := Prepare (DB, "SELECT COUNT(*) FROM test");
       Result := Step (Stmt);
       
       if Result = ROW then
@@ -40,7 +40,7 @@ package body Transaction_Tests is
          Count := 0;
       end if;
       
-      Finalize_Statement (Stmt);
+      
       return Count;
    end Count_Rows;
 
@@ -68,7 +68,7 @@ package body Transaction_Tests is
       Assert (Count_Rows (DB) = 2, "Should have 2 rows after commit");
       
       --  Clean up
-      Close (DB);
+      
    end Test_Begin_Commit;
 
    --  Test beginning and rolling back a transaction
@@ -99,7 +99,7 @@ package body Transaction_Tests is
       Assert (Count_Rows (DB) = 1, "Should have 1 row after rollback");
       
       --  Clean up
-      Close (DB);
+      
    end Test_Begin_Rollback;
 
    --  Test nested transactions (savepoints)
@@ -151,7 +151,7 @@ package body Transaction_Tests is
       Assert (Count_Rows (DB) = 3, "Should have 3 rows after committing outer transaction");
       
       --  Clean up
-      Close (DB);
+      
    end Test_Nested_Transactions;
 
    --  Test transaction isolation
@@ -177,45 +177,40 @@ package body Transaction_Tests is
       Execute (DB1, "INSERT INTO test (value) VALUES ('value2')");
       
       --  Check that the data is visible in the first connection
-      Prepare (Stmt1, DB1, "SELECT COUNT(*) FROM test");
+      Stmt1 := Prepare (DB1, "SELECT COUNT(*) FROM test");
       Result := Step (Stmt1);
       if Result = ROW then
          Count1 := Column_Int (Stmt1, 0);
       else
          Count1 := 0;
       end if;
-      Finalize_Statement (Stmt1);
       Assert (Count1 = 2, "Should have 2 rows in first connection");
       
       --  Check that the data is not visible in the second connection
       --  (due to transaction isolation)
-      Prepare (Stmt2, DB2, "SELECT COUNT(*) FROM test");
+      Stmt2 := Prepare (DB2, "SELECT COUNT(*) FROM test");
       Result := Step (Stmt2);
       if Result = ROW then
          Count2 := Column_Int (Stmt2, 0);
       else
          Count2 := 0;
       end if;
-      Finalize_Statement (Stmt2);
       Assert (Count2 = 0, "Should have 0 rows in second connection before commit");
       
       --  Commit the transaction
       Execute (DB1, "COMMIT");
       
       --  Check that the data is now visible in the second connection
-      Prepare (Stmt2, DB2, "SELECT COUNT(*) FROM test");
+      Stmt2 := Prepare (DB2, "SELECT COUNT(*) FROM test");
       Result := Step (Stmt2);
       if Result = ROW then
          Count2 := Column_Int (Stmt2, 0);
       else
          Count2 := 0;
       end if;
-      Finalize_Statement (Stmt2);
       Assert (Count2 = 2, "Should have 2 rows in second connection after commit");
       
       --  Clean up
-      Close (DB1);
-      Close (DB2);
    end Test_Transaction_Isolation;
 
    --  Test transaction error handling
@@ -238,7 +233,7 @@ package body Transaction_Tests is
       --  Try to execute invalid SQL within the transaction
       Exception_Raised := False;
       begin
-         Prepare (Stmt, DB, "INSERT INTO nonexistent_table (value) VALUES ('value2')");
+         Stmt := Prepare (DB, "INSERT INTO nonexistent_table (value) VALUES ('value2')");
          Step (Stmt);
       exception
          when SQLite_Error =>
@@ -250,32 +245,32 @@ package body Transaction_Tests is
       
       --  Check that the transaction is still active
       --  (SQLite doesn't automatically roll back on error)
-      Prepare (Stmt, DB, "SELECT COUNT(*) FROM test");
+      Stmt := Prepare (DB, "SELECT COUNT(*) FROM test");
       Result := Step (Stmt);
       if Result = ROW then
          Count := Column_Int (Stmt, 0);
       else
          Count := 0;
       end if;
-      Finalize_Statement (Stmt);
+      
       Assert (Count = 1, "Should still have 1 row after error");
       
       --  Explicitly rollback after error
       Execute (DB, "ROLLBACK");
       
       --  Check that the data was rolled back
-      Prepare (Stmt, DB, "SELECT COUNT(*) FROM test");
+      Stmt := Prepare (DB, "SELECT COUNT(*) FROM test");
       Result := Step (Stmt);
       if Result = ROW then
          Count := Column_Int (Stmt, 0);
       else
          Count := 0;
       end if;
-      Finalize_Statement (Stmt);
+      
       Assert (Count = 0, "Should have 0 rows after rollback");
       
       --  Clean up
-      Close (DB);
+      
    end Test_Transaction_Error;
 
    --  Register test routines to call

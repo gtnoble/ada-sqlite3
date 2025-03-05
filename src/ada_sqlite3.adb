@@ -19,7 +19,6 @@ package body Ada_Sqlite3 is
    use type C.int;
    use type CS.chars_ptr;
    use type System.Address;
-   use type LL.Datatype;
 
    --  Raise an exception with the given error code and message
    procedure Raise_Error (Code : Result_Code; Message : String) is
@@ -49,20 +48,15 @@ package body Ada_Sqlite3 is
    --  Database implementation
 
    --  Open a new database connection
-   procedure Open
-     (DB       : in out Database;
-      Filename : String;
-      Flags    : Open_Flag := OPEN_READWRITE or OPEN_CREATE)
+   function Open
+     (Filename : String;
+      Flags    : Open_Flag := OPEN_READWRITE or OPEN_CREATE) return Database
    is
       C_Filename : CS.chars_ptr := CS.New_String (Filename);
       DB_Handle  : aliased LL.Sqlite3;
       Result     : Result_Code;
+      DB         : Database;
    begin
-      --  Close the database if it's already open
-      if DB.Is_Open then
-         Close (DB);
-      end if;
-
       --  Open the database
       Result := LL.Sqlite3_Open_V2
         (Filename => C_Filename,
@@ -81,6 +75,8 @@ package body Ada_Sqlite3 is
       --  Set the database handle
       DB.Handle := System.Address (DB_Handle);
       DB.Is_Open_Flag := True;
+      
+      return DB;
    end Open;
 
    --  Close a database connection
@@ -163,29 +159,24 @@ package body Ada_Sqlite3 is
    --  Finalize a database connection
    overriding procedure Finalize (DB : in out Database) is
    begin
-      Close (DB);
+      
    end Finalize;
 
    --  Statement implementation
 
    --  Prepare a SQL statement
-   procedure Prepare
-     (Stmt : in out Statement'Class;
-      DB   : in out Database;
-      SQL  : String)
+   function Prepare
+     (DB   : in out Database;
+      SQL  : String) return Statement
    is
       C_SQL    : CS.chars_ptr := CS.New_String (SQL);
       Stmt_Handle : aliased LL.Sqlite3_Stmt;
       Tail     : aliased CS.chars_ptr := CS.Null_Ptr;
       Result   : Result_Code;
+      Stmt     : Statement;
    begin
       if not DB.Is_Open then
          raise SQLite_Error with "Database is not open";
-      end if;
-
-      --  Finalize the statement if it's already prepared
-      if Stmt.Handle /= System.Null_Address then
-         Finalize_Statement (Stmt);
       end if;
 
       Result := LL.Sqlite3_Prepare_V2
@@ -206,6 +197,8 @@ package body Ada_Sqlite3 is
       --  Set the statement handle
       Stmt.Handle := System.Address (Stmt_Handle);
       Stmt.DB := DB'Unchecked_Access;
+      
+      return Stmt;
    end Prepare;
 
    --  Finalize a prepared statement

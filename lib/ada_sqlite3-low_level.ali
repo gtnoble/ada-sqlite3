@@ -25,7 +25,7 @@ U ada_sqlite3.low_level%b  ada_sqlite3-low_level.adb  5f75cd49 NE OO PK
 Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
 W ada_sqlite3%s		ada_sqlite3.adb		ada_sqlite3.ali
 
-U ada_sqlite3.low_level%s  ada_sqlite3-low_level.ads  db2409ee EE NE OO PK
+U ada_sqlite3.low_level%s  ada_sqlite3-low_level.ads  7d1fccb0 EE NE OO PK
 Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
 W ada_sqlite3%s		ada_sqlite3.adb		ada_sqlite3.ali
 W interfaces%s		interfac.ads		interfac.ali
@@ -42,7 +42,7 @@ D a-sttebu.ads		20240801081713 f1ad67a2 ada.strings.text_buffers%s
 D a-stuten.ads		20240801081713 c6ced0ae ada.strings.utf_encoding%s
 D a-tags.ads		20240801081713 9eaa38c6 ada.tags%s
 D a-unccon.ads		20240801081713 0e9b276f ada.unchecked_conversion%s
-D ada_sqlite3.ads	20250302212249 64558577 ada_sqlite3%s
+D ada_sqlite3.ads	20250305193544 c26e4029 ada_sqlite3%s
 D ada_sqlite3-low_level.ads  20250302210014 559330fc ada_sqlite3.low_level%s
 D ada_sqlite3-low_level.adb  20250302205208 0ae6fdb5 ada_sqlite3.low_level%b
 D interfac.ads		20240801081713 9111f9c1 interfaces%s

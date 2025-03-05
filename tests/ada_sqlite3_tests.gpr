@@ -1,4 +1,4 @@
-with "../ada_sqlite3";
+with "ada_sqlite3";
 with "aunit";
 
 project Ada_Sqlite3_Tests is

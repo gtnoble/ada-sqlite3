@@ -24,6 +24,6 @@ abstract project Ada_Sqlite3_Config is
           );
 
    type Build_Profile_Kind is ("release", "validation", "development");
-   Build_Profile : Build_Profile_Kind := "development";
+   Build_Profile : Build_Profile_Kind := "release";
 
 end Ada_Sqlite3_Config;

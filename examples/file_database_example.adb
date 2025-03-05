@@ -16,20 +16,18 @@ procedure File_Database_Example is
    use Ada.Text_IO;
    use Ada_Sqlite3;
 
-   DB : Database;
-   Stmt : Statement;
    Result : Result_Code;
    DB_Filename : constant String := "example.db";
 
    --  Helper procedure to print all products
-   procedure Print_Products is
+   procedure Print_Products (DB : in out Database) is
       Query_Stmt : Statement;
    begin
       Put_Line ("Products:");
       Put_Line ("ID | Name                 | Price    | Stock");
       Put_Line ("---+----------------------+----------+------");
 
-      Prepare (Query_Stmt, DB, "SELECT id, name, price, stock FROM products ORDER BY id");
+      Query_Stmt := Prepare (DB, "SELECT id, name, price, stock FROM products ORDER BY id");
 
       loop
          Result := Step (Query_Stmt);
@@ -81,92 +79,90 @@ procedure File_Database_Example is
          end if;
       end loop;
 
-      Finalize (Query_Stmt);
       New_Line;
    end Print_Products;
 
 begin
    Put_Line ("SQLite3 File Database Example");
    
-   --  Check if the database file already exists
-   if Ada.Directories.Exists (DB_Filename) then
-      Put_Line ("Opening existing database: " & DB_Filename);
-      Open (DB, DB_Filename, READWRITE);
-   else
-      Put_Line ("Creating new database: " & DB_Filename);
-      Open (DB, DB_Filename, READWRITE or CREATE);
+   declare
+      DB : Database;
+   begin
+      --  Check if the database file already exists
+      if Ada.Directories.Exists (DB_Filename) then
+         Put_Line ("Opening existing database: " & DB_Filename);
+         DB := Open (DB_Filename, OPEN_READWRITE);
+      else
+         Put_Line ("Creating new database: " & DB_Filename);
+         DB := Open (DB_Filename, OPEN_READWRITE or OPEN_CREATE);
+         
+         --  Create the schema
+         Put_Line ("Creating schema...");
+         Execute (DB, "CREATE TABLE products (id INTEGER PRIMARY KEY, name TEXT, price REAL, stock INTEGER)");
+         
+         --  Insert initial data
+         Put_Line ("Inserting initial data...");
+         Execute (DB, "INSERT INTO products (name, price, stock) VALUES ('Laptop', 999.99, 10)");
+         Execute (DB, "INSERT INTO products (name, price, stock) VALUES ('Smartphone', 699.99, 20)");
+         Execute (DB, "INSERT INTO products (name, price, stock) VALUES ('Tablet', 349.99, 15)");
+         Execute (DB, "INSERT INTO products (name, price, stock) VALUES ('Headphones', 149.99, 30)");
+         Execute (DB, "INSERT INTO products (name, price, stock) VALUES ('Keyboard', 79.99, 25)");
+      end if;
       
-      --  Create the schema
-      Put_Line ("Creating schema...");
-      Execute (DB, "CREATE TABLE products (id INTEGER PRIMARY KEY, name TEXT, price REAL, stock INTEGER)");
+      --  Print all products
+      Print_Products (DB);
       
-      --  Insert initial data
-      Put_Line ("Inserting initial data...");
-      Execute (DB, "INSERT INTO products (name, price, stock) VALUES ('Laptop', 999.99, 10)");
-      Execute (DB, "INSERT INTO products (name, price, stock) VALUES ('Smartphone', 699.99, 20)");
-      Execute (DB, "INSERT INTO products (name, price, stock) VALUES ('Tablet', 349.99, 15)");
-      Execute (DB, "INSERT INTO products (name, price, stock) VALUES ('Headphones', 149.99, 30)");
-      Execute (DB, "INSERT INTO products (name, price, stock) VALUES ('Keyboard', 79.99, 25)");
-   end if;
-   
-   --  Print all products
-   Print_Products;
-   
-   --  Add a new product using a prepared statement
-   Put_Line ("Adding a new product...");
-   Prepare (Stmt, DB, "INSERT INTO products (name, price, stock) VALUES (?, ?, ?)");
-   
-   Bind_Text (Stmt, 1, "Mouse");
-   Bind_Double (Stmt, 2, 49.99);
-   Bind_Int (Stmt, 3, 50);
-   Step (Stmt);
-   Finalize (Stmt);
-   
-   --  Print all products after adding
-   Print_Products;
-   
-   --  Update a product
-   Put_Line ("Updating product stock...");
-   Prepare (Stmt, DB, "UPDATE products SET stock = stock - ? WHERE name = ?");
-   
-   Bind_Int (Stmt, 1, 5);
-   Bind_Text (Stmt, 2, "Laptop");
-   Step (Stmt);
-   Finalize (Stmt);
-   
-   --  Print all products after updating
-   Print_Products;
-   
-   --  Get the total value of inventory
-   Put_Line ("Calculating total inventory value...");
-   Prepare (Stmt, DB, "SELECT SUM(price * stock) FROM products");
-   
-   if Step (Stmt) = ROW then
+      --  Add a new product using a prepared statement
+      Put_Line ("Adding a new product...");
       declare
-         Total_Value : constant Float := Column_Double (Stmt, 0);
+         Stmt : Statement := Prepare (DB, "INSERT INTO products (name, price, stock) VALUES (?, ?, ?)");
       begin
-         Put_Line ("Total inventory value: $" & 
-                  Integer'Image (Integer (Total_Value)) (2 .. Integer'Image (Integer (Total_Value))'Last) &
-                  "." & Integer'Image (Integer ((Total_Value - Float'Floor (Total_Value)) * 100.0)) (2 .. 3));
+         Bind_Text (Stmt, 1, "Mouse");
+         Bind_Double (Stmt, 2, 49.99);
+         Bind_Int (Stmt, 3, 50);
+         Step (Stmt);
       end;
-   end if;
-   
-   Finalize (Stmt);
-   
-   --  Clean up
-   Close (DB);
-   Put_Line ("Database closed");
-   Put_Line ("Database file: " & DB_Filename);
+      
+      --  Print all products after adding
+      Print_Products (DB);
+      
+      --  Update a product
+      Put_Line ("Updating product stock...");
+      declare
+         Stmt : Statement := Prepare (DB, "UPDATE products SET stock = stock - ? WHERE name = ?");
+      begin
+         Bind_Int (Stmt, 1, 5);
+         Bind_Text (Stmt, 2, "Laptop");
+         Step (Stmt);
+      end;
+      
+      --  Print all products after updating
+      Print_Products (DB);
+      
+      --  Get the total value of inventory
+      Put_Line ("Calculating total inventory value...");
+      declare
+         Stmt : Statement := Prepare (DB, "SELECT SUM(price * stock) FROM products");
+      begin
+         if Step (Stmt) = ROW then
+            declare
+               Total_Value : constant Float := Column_Double (Stmt, 0);
+            begin
+               Put_Line ("Total inventory value: $" & 
+                        Integer'Image (Integer (Total_Value)) (2 .. Integer'Image (Integer (Total_Value))'Last) &
+                        "." & Integer'Image (Integer ((Total_Value - Float'Floor (Total_Value)) * 100.0)) (2 .. 3));
+            end;
+         end if;
+         
+      end;
+      
+      --  Clean up
+      Put_Line ("Database file: " & DB_Filename);
+   end;
 
 exception
    when E : SQLite_Error =>
       Put_Line ("SQLite error: " & Ada.Exceptions.Exception_Message (E));
-      if Is_Open (DB) then
-         Close (DB);
-      end if;
    when E : others =>
       Put_Line ("Error: " & Ada.Exceptions.Exception_Message (E));
-      if Is_Open (DB) then
-         Close (DB);
-      end if;
 end File_Database_Example;

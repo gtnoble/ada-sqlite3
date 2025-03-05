@@ -9,20 +9,17 @@
 with Ada.Unchecked_Deallocation;
 with Ada.Unchecked_Conversion;
 with Interfaces.C;
-with Interfaces.C.Strings;
 with Ada_Sqlite3.Low_Level;
 with System;
 
 package body Ada_Sqlite3.Blobs is
 
    package C renames Interfaces.C;
-   package CS renames Interfaces.C.Strings;
    package LL renames Ada_Sqlite3.Low_Level;
    package SEA renames Ada.Streams;
 
    use type C.int;
    use type System.Address;
-   use type LL.Datatype;
 
    procedure Free is new Ada.Unchecked_Deallocation
      (SEA.Stream_Element_Array, Blob_Data_Access);
