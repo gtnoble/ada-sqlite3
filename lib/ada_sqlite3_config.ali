@@ -1,5 +1,5 @@
 V "GNAT Lib v14"
-A -O2
+A -Og
 A -gnatA
 A -g
 A -gnato
@@ -20,7 +20,7 @@ RR NO_ELABORATION_CODE
 
 U ada_sqlite3_config%s	ada_sqlite3_config.ads	a60988a5 NE OO PU PK
 
-D ada_sqlite3_config.ads  20250305201016 a60988a5 ada_sqlite3_config%s
+D ada_sqlite3_config.ads  20250307214930 a60988a5 ada_sqlite3_config%s
 D system.ads		20240801081714 14286b0f system%s
 G a e
 X 1 ada_sqlite3_config.ads

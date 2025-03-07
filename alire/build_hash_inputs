@@ -2,5 +2,5 @@ dependency:aunit=25.0.0=6611d925c6ad71fb03c1f1c7dedf0728fd3ecf20865152adbd9d7d9a
 external:ADA_SQLITE3_LIBRARY_TYPE=default
 external:LIBRARY_TYPE=default
 profile:ada_sqlite3=RELEASE
-switches:ada_sqlite3=-O2,-g,-gnat12,-gnatQ,-gnatVa,-gnatW8,-gnata,-gnato,-gnatwa
+switches:ada_sqlite3=-Og,-g,-gnat12,-gnatQ,-gnatVa,-gnatW8,-gnata,-gnato,-gnatwa
 version:gnat_native=14.2.1

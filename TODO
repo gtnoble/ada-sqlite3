@@ -1,3 +1,4 @@
-Determine whether statement finalizer (Finalize_Statement) should be able to be called manually or only automaticaly
-determine whether finalizer ahs correct logic
 Add user defined function functionality (if it does not exist yet)
+Fix setup_test_db to return the limited db type properly
+Fix segfault due to SQLITE_TRANSIENT destructor type
+  Perhaps pass an ada-implemented destructor function pointer

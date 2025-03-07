@@ -107,7 +107,7 @@ package Ada_Sqlite3 is
 
    --  Prepare a SQL statement
    function Prepare
-     (DB   : in out Database;
+     (DB   : in out Database'Class;
       SQL  : String) return Statement;
 
    --  Reset a prepared statement
@@ -197,26 +197,54 @@ package Ada_Sqlite3 is
 
 private
 
-   type Database_Access is access all Database;
-   type Statement_Access is access all Statement;
+type Database_Access is access all Database'Class;
+type Statement_Access is access all Statement'Class;
 
-   type Database is new Ada.Finalization.Limited_Controlled with record
-      Handle      : System.Address := System.Null_Address;
-      Is_Open_Flag : Boolean := False;
-   end record;
+--  Forward declaration for Statement_List
+type Statement_List;
+type Statement_List_Access is access Statement_List;
+
+--  List of statements associated with a database
+type Statement_List is record
+   Stmt : Statement_Access;
+   Next : Statement_List_Access;
+end record;
+
+type Database is new Ada.Finalization.Limited_Controlled with record
+   Handle       : System.Address := System.Null_Address;
+   Is_Open_Flag : Boolean := False;
+   Statements   : Statement_List_Access := null;  --  List of associated statements
+   Finalizing   : Boolean := False;  --  Flag to indicate database is being finalized
+end record;
+
+--  Make Database a reference-counted type
+type Database_Ref is access all Database;
+for Database_Ref'Storage_Size use 0;  -- No heap allocation
 
    --  Close a database connection
    procedure Close (DB : in out Database);
 
    overriding procedure Finalize (DB : in out Database);
 
-   type Statement is new Ada.Finalization.Limited_Controlled with record
-      Handle      : System.Address := System.Null_Address;
-      DB          : Database_Access := null;
-   end record;
+type Statement is new Ada.Finalization.Limited_Controlled with record
+   Handle      : System.Address := System.Null_Address;
+   DB          : Database_Access := null;
+   List_Node   : Statement_List_Access := null;  --  Reference to list node containing this statement
+   Finalized   : Boolean := False;  --  Flag to track whether the statement has been finalized
+end record;
+
+--  Make Statement a reference-counted type
+type Statement_Ref is access all Statement;
+for Statement_Ref'Storage_Size use 0;  -- No heap allocation
     
-   --  Finalize a prepared statement (release resources)
-   procedure Finalize_Statement (Stmt : in out Statement'Class);
+--  Finalize a prepared statement (release resources)
+procedure Finalize_Statement (Stmt : in out Statement'Class);
+
+--  Register a statement with its database
+procedure Register_Statement (DB : in out Database; Stmt : in out Statement'Class);
+
+--  Unregister a statement from its database
+procedure Unregister_Statement (Stmt : in out Statement'Class);
 
    overriding procedure Finalize (Stmt : in out Statement);
 

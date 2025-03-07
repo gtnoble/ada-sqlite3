@@ -25,4 +25,4 @@ ada_sqlite3 = { path = ".." }
 "*".contracts = ["-gnata"]
 "*".runtime_checks = ["-gnato"]
 "*".debug_info = ["-g"]
-"*".optimization = ["-O0"]
+"*".optimization = ["-Og"]

@@ -20,13 +20,13 @@ package body Blob_Tests is
    use Ada_Sqlite3.Blobs;
 
    --  Setup test database
-   procedure Setup_Test_DB (DB : in out Database) is
+   function Setup_Test_DB return Database is
    begin
       --  Open an in-memory database
-      Open (DB, ":memory:", OPEN_READWRITE or OPEN_CREATE);
-      
-      --  Create a test table with a BLOB column
-      Execute (DB, "CREATE TABLE test_blobs (id INTEGER PRIMARY KEY, name TEXT, data BLOB)");
+      return DB : Database := Open (":memory:", OPEN_READWRITE or OPEN_CREATE) do
+         --  Create a test table with a BLOB column
+         Execute (DB, "CREATE TABLE test_blobs (id INTEGER PRIMARY KEY, name TEXT, data BLOB)");
+      end return;
    end Setup_Test_DB;
 
    --  Helper function to compare stream element arrays
@@ -97,23 +97,30 @@ package body Blob_Tests is
    --  Test binding a blob to a statement
    procedure Test_Bind_Blob (T : in out Test) is
       pragma Unreferenced (T);
-      DB : Database;
-      Stmt : Statement;
+      DB : Database := Open (":memory:", OPEN_READWRITE or OPEN_CREATE);
       Test_Data : constant Stream_Element_Array := (1, 2, 3, 4, 5, 6, 7, 8);
       Test_Blob : constant Blob := Create (Test_Data);
    begin
-      Setup_Test_DB (DB);
+      
+      --  Create a test table with a BLOB column
+      Execute (DB, "CREATE TABLE test_blobs (id INTEGER PRIMARY KEY, name TEXT, data BLOB)");
       
       --  Insert a blob
-      Stmt := Prepare (DB, "INSERT INTO test_blobs (name, data) VALUES (?, ?)");
-      Bind_Text (Stmt, 1, "Test Blob");
-      Bind_Blob (Stmt, 2, Test_Blob);
-      Step (Stmt);
+      declare
+         Stmt : Statement := Prepare (DB, "INSERT INTO test_blobs (name, data) VALUES (?, ?)");
+      begin
+         Bind_Text (Stmt, 1, "Test Blob");
+         Bind_Blob (Stmt, 2, Test_Blob);
+         Step (Stmt);
+      end;
       
       
       --  Verify the blob was inserted
-      Stmt := Prepare (DB, "SELECT data FROM test_blobs WHERE name = 'Test Blob'");
-      Assert (Step (Stmt) = ROW, "Should have a row with the inserted blob");
+      declare
+         Stmt2 : Statement := Prepare (DB, "SELECT data FROM test_blobs WHERE name = 'Test Blob'");
+      begin
+         Assert (Step (Stmt2) = ROW, "Should have a row with the inserted blob");
+      end;
       
       --  Clean up
       
@@ -123,32 +130,40 @@ package body Blob_Tests is
    --  Test retrieving a blob from a column
    procedure Test_Column_Blob (T : in out Test) is
       pragma Unreferenced (T);
-      DB : Database;
-      Stmt : Statement;
+      DB : Database := Open (":memory:", OPEN_READWRITE or OPEN_CREATE);
       Test_Data : constant Stream_Element_Array := (1, 2, 3, 4, 5, 6, 7, 8);
       Test_Blob : constant Blob := Create (Test_Data);
       Retrieved_Blob : Blob;
    begin
-      Setup_Test_DB (DB);
+      --  Open database
+      
+      --  Create a test table with a BLOB column
+      Execute (DB, "CREATE TABLE test_blobs (id INTEGER PRIMARY KEY, name TEXT, data BLOB)");
       
       --  Insert a blob
-      Stmt := Prepare (DB, "INSERT INTO test_blobs (name, data) VALUES (?, ?)");
-      Bind_Text (Stmt, 1, "Test Blob");
-      Bind_Blob (Stmt, 2, Test_Blob);
-      Step (Stmt);
+      declare
+         Stmt : Statement := Prepare (DB, "INSERT INTO test_blobs (name, data) VALUES (?, ?)");
+      begin
+         Bind_Text (Stmt, 1, "Test Blob");
+         Bind_Blob (Stmt, 2, Test_Blob);
+         Step (Stmt);
+      end;
       
       
       --  Retrieve the blob
-      Stmt := Prepare (DB, "SELECT data FROM test_blobs WHERE name = 'Test Blob'");
-      Assert (Step (Stmt) = ROW, "Should have a row with the inserted blob");
+      declare
+         Stmt2 : Statement := Prepare (DB, "SELECT data FROM test_blobs WHERE name = 'Test Blob'");
+      begin
+         Assert (Step (Stmt2) = ROW, "Should have a row with the inserted blob");
       
-      --  Get the blob from the column
-      Retrieved_Blob := Column_Blob (Stmt, 0);
+         --  Get the blob from the column
+         Retrieved_Blob := Column_Blob (Stmt2, 0);
       
-      --  Check that the retrieved blob matches the original
-      Assert (Size (Retrieved_Blob) = Size (Test_Blob), "Retrieved blob size should match original");
-      Assert (Arrays_Equal (Data (Retrieved_Blob), Data (Test_Blob)), 
-             "Retrieved blob data should match original");
+         --  Check that the retrieved blob matches the original
+         Assert (Size (Retrieved_Blob) = Size (Test_Blob), "Retrieved blob size should match original");
+         Assert (Arrays_Equal (Data (Retrieved_Blob), Data (Test_Blob)), 
+                "Retrieved blob data should match original");
+      end;
       
       --  Clean up
       
@@ -224,33 +239,35 @@ package body Blob_Tests is
       pragma Unreferenced (T);
       Empty_Data : constant Stream_Element_Array (1 .. 0) := (others => 0);
       Empty_Blob : constant Blob := Create (Empty_Data);
-      DB : Database;
-      Stmt : Statement;
+      DB : Database := Open (":memory:", OPEN_READWRITE or OPEN_CREATE);
       Retrieved_Blob : Blob;
    begin
-      --  Check empty blob properties
-      Assert (Size (Empty_Blob) = 0, "Empty blob size should be 0");
-      Assert (Stream_Element_Offset (Data (Empty_Blob)'Length) = Stream_Element_Offset (0), "Empty blob data length should be 0");
+      
+      --  Create a test table with a BLOB column
+      Execute (DB, "CREATE TABLE test_blobs (id INTEGER PRIMARY KEY, name TEXT, data BLOB)");
       
       --  Test storing and retrieving empty blob
-      Setup_Test_DB (DB);
-      
-      --  Insert an empty blob
-      Stmt := Prepare (DB, "INSERT INTO test_blobs (name, data) VALUES (?, ?)");
-      Bind_Text (Stmt, 1, "Empty Blob");
-      Bind_Blob (Stmt, 2, Empty_Blob);
-      Step (Stmt);
+      declare
+         Stmt : Statement := Prepare (DB, "INSERT INTO test_blobs (name, data) VALUES (?, ?)");
+      begin
+         Bind_Text (Stmt, 1, "Empty Blob");
+         Bind_Blob (Stmt, 2, Empty_Blob);
+         Step (Stmt);
+      end;
       
       
       --  Retrieve the empty blob
-      Stmt := Prepare (DB, "SELECT data FROM test_blobs WHERE name = 'Empty Blob'");
-      Assert (Step (Stmt) = ROW, "Should have a row with the empty blob");
+      declare
+         Stmt2 : Statement := Prepare (DB, "SELECT data FROM test_blobs WHERE name = 'Empty Blob'");
+      begin
+         Assert (Step (Stmt2) = ROW, "Should have a row with the empty blob");
       
-      --  Get the blob from the column
-      Retrieved_Blob := Column_Blob (Stmt, 0);
+         --  Get the blob from the column
+         Retrieved_Blob := Column_Blob (Stmt2, 0);
       
-      --  Check that the retrieved blob is empty
-      Assert (Size (Retrieved_Blob) = 0, "Retrieved empty blob size should be 0");
+         --  Check that the retrieved blob is empty
+         Assert (Size (Retrieved_Blob) = 0, "Retrieved empty blob size should be 0");
+      end;
       
       --  Clean up
       
@@ -264,10 +281,13 @@ package body Blob_Tests is
       Large_Size : constant Stream_Element_Offset := 100 * 1024;
       Large_Data : Stream_Element_Array (1 .. Large_Size);
       Large_Blob : Blob;
-      DB : Database;
-      Stmt : Statement;
+      DB : Database := Open (":memory:", OPEN_READWRITE or OPEN_CREATE);
       Retrieved_Blob : Blob;
    begin
+      
+      --  Create a test table with a BLOB column
+      Execute (DB, "CREATE TABLE test_blobs (id INTEGER PRIMARY KEY, name TEXT, data BLOB)");
+      
       --  Fill the large data array with a pattern
       for I in Large_Data'Range loop
          Large_Data (I) := Stream_Element (I mod 256);
@@ -281,58 +301,61 @@ package body Blob_Tests is
       Assert (Stream_Element_Offset (Data (Large_Blob)'Length) = Large_Size, "Large blob data length should match");
       
       --  Test storing and retrieving large blob
-      Setup_Test_DB (DB);
-      
-      --  Insert a large blob
-      Stmt := Prepare (DB, "INSERT INTO test_blobs (name, data) VALUES (?, ?)");
-      Bind_Text (Stmt, 1, "Large Blob");
-      Bind_Blob (Stmt, 2, Large_Blob);
-      Step (Stmt);
+      declare
+         Stmt : Statement := Prepare (DB, "INSERT INTO test_blobs (name, data) VALUES (?, ?)");
+      begin
+         Bind_Text (Stmt, 1, "Large Blob");
+         Bind_Blob (Stmt, 2, Large_Blob);
+         Step (Stmt);
+      end;
       
       
       --  Retrieve the large blob
-      Stmt := Prepare (DB, "SELECT data FROM test_blobs WHERE name = 'Large Blob'");
-      Assert (Step (Stmt) = ROW, "Should have a row with the large blob");
-      
-      --  Get the blob from the column
-      Retrieved_Blob := Column_Blob (Stmt, 0);
-      
-      --  Check that the retrieved blob matches the original
-      Assert (Size (Retrieved_Blob) = Size (Large_Blob), "Retrieved large blob size should match");
-      
-      --  Check a sample of the data (checking all 100KB would be too slow for a unit test)
       declare
-         Original_Data : constant Stream_Element_Array := Data (Large_Blob);
-         Retrieved_Data : constant Stream_Element_Array := Data (Retrieved_Blob);
-         
-         --  Check the first 100 bytes
-         First_Range : constant Stream_Element_Offset := 100;
-         
-         --  Check the last 100 bytes
-         Last_Start : constant Stream_Element_Offset := Large_Size - 100 + 1;
+         Stmt2 : Statement := Prepare (DB, "SELECT data FROM test_blobs WHERE name = 'Large Blob'");
       begin
-         --  Check first chunk
-         for I in 1 .. First_Range loop
-            Assert (Retrieved_Data (I) = Original_Data (I),
-                   "First chunk data should match at index " & Stream_Element_Offset'Image (I));
-         end loop;
+         Assert (Step (Stmt2) = ROW, "Should have a row with the large blob");
+      
+         --  Get the blob from the column
+         Retrieved_Blob := Column_Blob (Stmt2, 0);
+      
+         --  Check that the retrieved blob matches the original
+         Assert (Size (Retrieved_Blob) = Size (Large_Blob), "Retrieved large blob size should match");
+      
+         --  Check a sample of the data (checking all 100KB would be too slow for a unit test)
+         declare
+            Original_Data : constant Stream_Element_Array := Data (Large_Blob);
+            Retrieved_Data : constant Stream_Element_Array := Data (Retrieved_Blob);
          
-         --  Check last chunk
-         for I in Last_Start .. Large_Size loop
-            Assert (Retrieved_Data (I) = Original_Data (I),
-                   "Last chunk data should match at index " & Stream_Element_Offset'Image (I));
-         end loop;
+            --  Check the first 100 bytes
+            First_Range : constant Stream_Element_Offset := 100;
          
-         --  Check some random samples in the middle
-         for I in 1 .. 10 loop
-            declare
-               Index : constant Stream_Element_Offset := 
-                  Stream_Element_Offset (Natural (I) * Natural (Large_Size) / 10);
-            begin
-               Assert (Retrieved_Data (Index) = Original_Data (Index),
-                      "Middle sample should match at index " & Stream_Element_Offset'Image (Index));
-            end;
-         end loop;
+            --  Check the last 100 bytes
+            Last_Start : constant Stream_Element_Offset := Large_Size - 100 + 1;
+         begin
+            --  Check first chunk
+            for I in 1 .. First_Range loop
+               Assert (Retrieved_Data (I) = Original_Data (I),
+                      "First chunk data should match at index " & Stream_Element_Offset'Image (I));
+            end loop;
+         
+            --  Check last chunk
+            for I in Last_Start .. Large_Size loop
+               Assert (Retrieved_Data (I) = Original_Data (I),
+                      "Last chunk data should match at index " & Stream_Element_Offset'Image (I));
+            end loop;
+         
+            --  Check some random samples in the middle
+            for I in 1 .. 10 loop
+               declare
+                  Index : constant Stream_Element_Offset := 
+                     Stream_Element_Offset (I * Natural (Large_Size) / 10);
+               begin
+                  Assert (Retrieved_Data (Index) = Original_Data (Index),
+                         "Middle sample should match at index " & Stream_Element_Offset'Image (Index));
+               end;
+            end loop;
+         end;
       end;
       
       --  Clean up

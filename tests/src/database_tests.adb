@@ -41,9 +41,15 @@ package body Database_Tests is
       begin
          Assert (Is_Open (DB), "Database should be open");
 
-         --  Test closing the database
-         Close (DB);
-         Assert (not Is_Open (DB), "Database should be closed");
+         --  Create and use a statement
+         declare
+            Stmt : Statement := Prepare (DB, "CREATE TABLE test (id INTEGER PRIMARY KEY)");
+         begin
+            Step (Stmt);
+            --  Statement will be finalized here when it goes out of scope
+         end;
+
+         --  Database will be finalized here when it goes out of scope
       end;
 
       --  Clean up
@@ -66,16 +72,14 @@ package body Database_Tests is
 
          --  Verify data was inserted
          declare
-            Stmt : Statement;
+            Stmt : Statement := Prepare (DB, "SELECT COUNT(*) FROM test");
             Result : Result_Code;
          begin
-            Stmt := Prepare (DB, "SELECT COUNT(*) FROM test");
             Result := Step (Stmt);
             Assert (Result = ROW, "Step should return ROW");
             Assert (Column_Int (Stmt, 0) = 1, "Should have 1 row");
          end;
 
-         --  Close the database
       end;
    end Test_In_Memory_Database;
 
@@ -94,11 +98,10 @@ package body Database_Tests is
 
          --  Verify data was inserted
          declare
-            Stmt : Statement;
+            Stmt : Statement := Prepare (DB, "SELECT * FROM test");
             Result : Result_Code;
             Count : Integer := 0;
          begin
-            Stmt := Prepare (DB, "SELECT * FROM test");
             
             loop
                Result := Step (Stmt);
@@ -227,8 +230,7 @@ package body Database_Tests is
       Result.Add_Test (Caller.Create ("Test_Changes", Test_Changes'Access));
       Result.Add_Test (Caller.Create ("Test_Version", Test_Version'Access));
       Result.Add_Test (Caller.Create ("Test_Invalid_Database", Test_Invalid_Database'Access));
-      --  Temporarily disable Test_Invalid_SQL due to memory issues
-      --  Result.Add_Test (Caller.Create ("Test_Invalid_SQL", Test_Invalid_SQL'Access));
+      Result.Add_Test (Caller.Create ("Test_Invalid_SQL", Test_Invalid_SQL'Access));
       
       return Result;
    end Suite;

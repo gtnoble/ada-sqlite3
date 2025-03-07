@@ -16,40 +16,40 @@ package body Transaction_Tests is
    use Ada_Sqlite3;
 
    --  Setup test database
-   procedure Setup_Test_DB (DB : in out Database) is
+   function Setup_Test_DB return Database is
    begin
       --  Open an in-memory database
-      Open (DB, ":memory:", OPEN_READWRITE or OPEN_CREATE);
-      
-      --  Create a test table
-      Execute (DB, "CREATE TABLE test (id INTEGER PRIMARY KEY, value TEXT)");
+      return DB : Database := Open (":memory:", OPEN_READWRITE or OPEN_CREATE) do
+         --  Create a test table
+         Execute (DB, "CREATE TABLE test (id INTEGER PRIMARY KEY, value TEXT)");
+      end return;
    end Setup_Test_DB;
 
    --  Count rows in the test table
    function Count_Rows (DB : in out Database) return Integer is
-      Stmt : Statement;
       Result : Result_Code;
-      Count : Integer;
    begin
-      Stmt := Prepare (DB, "SELECT COUNT(*) FROM test");
-      Result := Step (Stmt);
+      declare
+         Stmt : Statement := Prepare (DB, "SELECT COUNT(*) FROM test");
+         Count : Integer;
+      begin
+         Result := Step (Stmt);
       
-      if Result = ROW then
-         Count := Column_Int (Stmt, 0);
-      else
-         Count := 0;
-      end if;
+         if Result = ROW then
+            Count := Column_Int (Stmt, 0);
+         else
+            Count := 0;
+         end if;
       
-      
-      return Count;
+         return Count;
+      end;
    end Count_Rows;
 
    --  Test beginning and committing a transaction
    procedure Test_Begin_Commit (T : in out Test) is
       pragma Unreferenced (T);
-      DB : Database;
+      DB : Database := Setup_Test_DB;
    begin
-      Setup_Test_DB (DB);
       
       --  Begin a transaction
       Execute (DB, "BEGIN TRANSACTION");
@@ -74,9 +74,8 @@ package body Transaction_Tests is
    --  Test beginning and rolling back a transaction
    procedure Test_Begin_Rollback (T : in out Test) is
       pragma Unreferenced (T);
-      DB : Database;
+      DB : Database := Setup_Test_DB;
    begin
-      Setup_Test_DB (DB);
       
       --  Insert initial data outside of transaction
       Execute (DB, "INSERT INTO test (value) VALUES ('initial')");
@@ -105,9 +104,8 @@ package body Transaction_Tests is
    --  Test nested transactions (savepoints)
    procedure Test_Nested_Transactions (T : in out Test) is
       pragma Unreferenced (T);
-      DB : Database;
+      DB : Database := Setup_Test_DB;
    begin
-      Setup_Test_DB (DB);
       
       --  Begin outer transaction
       Execute (DB, "BEGIN TRANSACTION");
@@ -157,14 +155,12 @@ package body Transaction_Tests is
    --  Test transaction isolation
    procedure Test_Transaction_Isolation (T : in out Test) is
       pragma Unreferenced (T);
-      DB1, DB2 : Database;
-      Stmt1, Stmt2 : Statement;
+      --  Open two connections to the same in-memory database
+      DB1 : Database := Open ("file:memdb1?mode=memory&cache=shared", OPEN_READWRITE or OPEN_CREATE or OPEN_URI);
+      DB2 : Database := Open ("file:memdb1?mode=memory&cache=shared", OPEN_READWRITE or OPEN_URI);
       Result : Result_Code;
       Count1, Count2 : Integer;
    begin
-      --  Open two connections to the same in-memory database
-      Open (DB1, "file:memdb1?mode=memory&cache=shared", OPEN_READWRITE or OPEN_CREATE or OPEN_URI);
-      Open (DB2, "file:memdb1?mode=memory&cache=shared", OPEN_READWRITE or OPEN_URI);
       
       --  Create a test table in the first connection
       Execute (DB1, "CREATE TABLE test (id INTEGER PRIMARY KEY, value TEXT)");
@@ -177,37 +173,45 @@ package body Transaction_Tests is
       Execute (DB1, "INSERT INTO test (value) VALUES ('value2')");
       
       --  Check that the data is visible in the first connection
-      Stmt1 := Prepare (DB1, "SELECT COUNT(*) FROM test");
-      Result := Step (Stmt1);
-      if Result = ROW then
-         Count1 := Column_Int (Stmt1, 0);
-      else
-         Count1 := 0;
-      end if;
+      declare
+         Stmt1 : Statement := Prepare (DB1, "SELECT COUNT(*) FROM test");
+      begin
+         Result := Step (Stmt1);
+         if Result = ROW then
+            Count1 := Column_Int (Stmt1, 0);
+         else
+            Count1 := 0;
+         end if;
+      end;
       Assert (Count1 = 2, "Should have 2 rows in first connection");
       
       --  Check that the data is not visible in the second connection
-      --  (due to transaction isolation)
-      Stmt2 := Prepare (DB2, "SELECT COUNT(*) FROM test");
-      Result := Step (Stmt2);
-      if Result = ROW then
-         Count2 := Column_Int (Stmt2, 0);
-      else
-         Count2 := 0;
-      end if;
+      declare
+         Stmt2 : Statement := Prepare (DB2, "SELECT COUNT(*) FROM test");
+      begin
+         Result := Step (Stmt2);
+         if Result = ROW then
+            Count2 := Column_Int (Stmt2, 0);
+         else
+            Count2 := 0;
+         end if;
+      end;
       Assert (Count2 = 0, "Should have 0 rows in second connection before commit");
       
       --  Commit the transaction
       Execute (DB1, "COMMIT");
       
       --  Check that the data is now visible in the second connection
-      Stmt2 := Prepare (DB2, "SELECT COUNT(*) FROM test");
-      Result := Step (Stmt2);
-      if Result = ROW then
-         Count2 := Column_Int (Stmt2, 0);
-      else
-         Count2 := 0;
-      end if;
+      declare
+         Stmt2 : Statement := Prepare (DB2, "SELECT COUNT(*) FROM test");
+      begin
+         Result := Step (Stmt2);
+         if Result = ROW then
+            Count2 := Column_Int (Stmt2, 0);
+         else
+            Count2 := 0;
+         end if;
+      end;
       Assert (Count2 = 2, "Should have 2 rows in second connection after commit");
       
       --  Clean up
@@ -216,13 +220,11 @@ package body Transaction_Tests is
    --  Test transaction error handling
    procedure Test_Transaction_Error (T : in out Test) is
       pragma Unreferenced (T);
-      DB : Database;
-      Stmt : Statement;
+      DB : Database := Setup_Test_DB;
       Result : Result_Code;
       Count : Integer;
       Exception_Raised : Boolean;
    begin
-      Setup_Test_DB (DB);
       
       --  Begin a transaction
       Execute (DB, "BEGIN TRANSACTION");
@@ -232,8 +234,9 @@ package body Transaction_Tests is
       
       --  Try to execute invalid SQL within the transaction
       Exception_Raised := False;
+      declare
+         Stmt : Statement := Prepare (DB, "INSERT INTO nonexistent_table (value) VALUES ('value2')");
       begin
-         Stmt := Prepare (DB, "INSERT INTO nonexistent_table (value) VALUES ('value2')");
          Step (Stmt);
       exception
          when SQLite_Error =>
@@ -245,13 +248,16 @@ package body Transaction_Tests is
       
       --  Check that the transaction is still active
       --  (SQLite doesn't automatically roll back on error)
-      Stmt := Prepare (DB, "SELECT COUNT(*) FROM test");
-      Result := Step (Stmt);
-      if Result = ROW then
-         Count := Column_Int (Stmt, 0);
-      else
-         Count := 0;
-      end if;
+      declare
+         Stmt : Statement := Prepare (DB, "SELECT COUNT(*) FROM test");
+      begin
+         Result := Step (Stmt);
+         if Result = ROW then
+            Count := Column_Int (Stmt, 0);
+         else
+            Count := 0;
+         end if;
+      end;
       
       Assert (Count = 1, "Should still have 1 row after error");
       
@@ -259,13 +265,16 @@ package body Transaction_Tests is
       Execute (DB, "ROLLBACK");
       
       --  Check that the data was rolled back
-      Stmt := Prepare (DB, "SELECT COUNT(*) FROM test");
-      Result := Step (Stmt);
-      if Result = ROW then
-         Count := Column_Int (Stmt, 0);
-      else
-         Count := 0;
-      end if;
+      declare
+         Stmt : Statement := Prepare (DB, "SELECT COUNT(*) FROM test");
+      begin
+         Result := Step (Stmt);
+         if Result = ROW then
+            Count := Column_Int (Stmt, 0);
+         else
+            Count := 0;
+         end if;
+      end;
       
       Assert (Count = 0, "Should have 0 rows after rollback");
       

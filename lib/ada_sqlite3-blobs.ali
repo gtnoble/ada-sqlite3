@@ -1,5 +1,5 @@
 V "GNAT Lib v14"
-A -O2
+A -Og
 A -gnatA
 A -g
 A -gnato
@@ -50,7 +50,7 @@ Z system.secondary_stack%s  s-secsta.adb	s-secsta.ali
 Z system.soft_links%s	s-soflin.adb		s-soflin.ali
 Z system.standard_library%s  s-stalib.adb	s-stalib.ali
 
-U ada_sqlite3.blobs%s	ada_sqlite3-blobs.ads	71b75fd1 EE OO PF PK
+U ada_sqlite3.blobs%s	ada_sqlite3-blobs.ads	4178581d EE OO PF PK
 W ada%s			ada.ads			ada.ali
 Z ada.exceptions%s	a-except.adb		a-except.ali
 W ada.finalization%s	a-finali.ads		a-finali.ali
@@ -76,7 +76,7 @@ D a-stuten.ads		20240801081713 c6ced0ae ada.strings.utf_encoding%s
 D a-tags.ads		20240801081713 9eaa38c6 ada.tags%s
 D a-unccon.ads		20240801081713 0e9b276f ada.unchecked_conversion%s
 D a-uncdea.ads		20240801081713 c3a8ac65 ada.unchecked_deallocation%s
-D ada_sqlite3.ads	20250305193544 c26e4029 ada_sqlite3%s
+D ada_sqlite3.ads	20250307171342 f2a147e5 ada_sqlite3%s
 D ada_sqlite3-blobs.ads	20250302211959 1d0d1020 ada_sqlite3.blobs%s
 D ada_sqlite3-blobs.adb	20250305194237 39c65146 ada_sqlite3.blobs%b
 D ada_sqlite3-low_level.ads  20250302210014 559330fc ada_sqlite3.low_level%s
@@ -84,10 +84,15 @@ D interfac.ads		20240801081713 9111f9c1 interfaces%s
 D i-c.ads		20240801081713 aac316ce interfaces.c%s
 D i-cstrin.ads		20240801081713 5409c1a4 interfaces.c.strings%s
 D system.ads		20240801081714 14286b0f system%s
+D s-atacco.ads		20240801081713 5868e3ba system.address_to_access_conversions%s
 D s-exctab.ads		20240801081713 91bef6ef system.exception_table%s
 D s-finmas.ads		20240801081713 28987ac5 system.finalization_masters%s
 D s-finroo.ads		20240801081713 4ff27390 system.finalization_root%s
+D s-linux.ads		20240801081713 34850a8c system.linux%s
 D s-memory.ads		20240801081713 18949c1a system.memory%s
+D s-multip.ads		20240801081713 38ac9f73 system.multiprocessors%s
+D s-oscons.ads		20240821182922 0a1d1474 system.os_constants%s
+D s-osinte.ads		20240801081713 e4f53740 system.os_interface%s
 D s-parame.ads		20240801081713 3597fc11 system.parameters%s
 D s-pooglo.ads		20240801081713 91708d21 system.pool_global%s
 D s-putima.ads		20240801081713 17291fe4 system.put_images%s
@@ -95,11 +100,15 @@ D s-retsta.ads		20240801081713 0f6b06cb system.return_stack%s
 D s-secsta.ads		20240801081713 578279f5 system.secondary_stack%s
 D s-soflin.ads		20240801081713 df77073e system.soft_links%s
 D s-stache.ads		20240801081713 0b81c1fe system.stack_checking%s
+D s-stausa.ads		20240801081713 5be75682 system.stack_usage%s
 D s-stalib.ads		20240801081713 1c9580f6 system.standard_library%s
 D s-stalib.adb		20240801081713 eb464a47 system.standard_library%b
 D s-stoele.ads		20240801081713 ccded4e8 system.storage_elements%s
 D s-stopoo.ads		20240801081713 e9fa2dd8 system.storage_pools%s
 D s-stratt.ads		20240801081713 a1861007 system.stream_attributes%s
+D s-tasinf.ads		20240801081713 528dde74 system.task_info%s
+D s-taspri.ads		20240801081713 4ec891e7 system.task_primitives%s
+D s-taskin.ads		20240801081713 ebc4edbe system.tasking%s
 D s-traent.ads		20240801081713 c81cbf8c system.traceback_entries%s
 D s-unstyp.ads		20240801081713 fa2a7f59 system.unsigned_types%s
 G a e
@@ -120,7 +129,7 @@ G c Z b b [free ada_sqlite3__blobs 24 14 none]
 G r c none [bind_blob ada_sqlite3__blobs 27 14 none] [sqlite3_bind_null ada_sqlite3__low_level 137 13 none]
 G r c none [bind_blob ada_sqlite3__blobs 27 14 none] [sqlite3_bind_blob ada_sqlite3__low_level 232 13 none]
 G r c none [bind_blob ada_sqlite3__blobs 27 14 none] [raise_error ada_sqlite3 54 14 none]
-G r c none [column_blob ada_sqlite3__blobs 33 13 none] [get_column_type ada_sqlite3 174 13 none]
+G r c none [column_blob ada_sqlite3__blobs 33 13 none] [get_column_type ada_sqlite3 169 13 none]
 G r c none [column_blob ada_sqlite3__blobs 33 13 none] [sqlite3_column_blob ada_sqlite3__low_level 226 13 none]
 G r c none [column_blob ada_sqlite3__blobs 33 13 none] [sqlite3_column_bytes ada_sqlite3__low_level 220 13 none]
 X 1 ada.ads
@@ -129,7 +138,7 @@ X 1 ada.ads
 . 139r19 141r16 154r31 156r32 157r12 168r15 170r16 174r24 178r26 199r19
 X 3 a-finali.ads
 40K13*Finalization 68e21 12|10w10 51r25
-43H9*Controlled<21|40R9> 59e72 12|51r38
+43H9*Controlled<22|40R9> 59e72 12|51r38
 X 4 a-stream.ads
 36K13*Streams 87e16 12|9w10 18r32 24r45 40r23 41r23 45r19 49r40 53r20 13|19r28
 . 28r32 31r30 47r45 122r36 122r74 128r33 138r23 139r23 141r20 154r35 156r36
@@ -144,15 +153,15 @@ X 9 a-unccon.ads
 X 10 a-uncdea.ads
 20u15*Unchecked_Deallocation 13|9w10 24r30
 X 11 ada_sqlite3.ads
-12K9*Ada_Sqlite3 225e16 12|12r9 60r5 13|12r6 15r14 18r23 219r5
+12K9*Ada_Sqlite3 251e16 12|12r9 60r5 13|12r6 15r14 18r23 219r5
 15I9*Result_Code<integer> 13|62r16
 18i4*OK{15I9} 13|83r20
 51X4*SQLite_Error 13|65r16 98r16
 54U14*Raise_Error 13|84s10
 65n7*Null_Type{60E9} 13|102r42
-110R9*Statement<3|50R9> 218e14 12|28r22 34r15 13|58r22 90r15
-174V13*Get_Column_Type{60E9} 13|102s10
-216m7*Handle{18|67M9} 13|64r15 71r44 76r48 97r15 108r41 113r41
+106R9*Statement<3|50R9> 234e11 12|28r22 34r15 13|58r22 90r15
+169V13*Get_Column_Type{60E9} 13|102s10
+230m4*Handle{18|67M9} 13|64r15 71r44 76r48 97r15 108r41 113r41
 X 12 ada_sqlite3-blobs.ads
 12K21*Blobs 11|12k9 12|49E9 60l17 60e22 13|15b26 219l17 219t22
 15R9*Blob<3|43R9> 18r69 21r28 24r28 30r15 35r31 39r22 44r22 51c9 54e14 56r53
@@ -165,11 +174,11 @@ X 12 ada_sqlite3-blobs.ads
 24V13*Data{4|54A9} 24>19 13|47b13 54l8 54t12
 24r19 Object{15R9} 13|47b19 49r10 52r17
 27U14*Bind_Blob 28=7 29>7 30>7 13|57b14 86l8 86t17
-28r7 Stmt{11|110R9} 13|58b7 64r10 71r39 76r43
+28r7 Stmt{11|106R9} 13|58b7 64r10 71r39 76r43
 29i7 Index{positive} 13|59b7 72r29 77r33
 30r7 Value{15R9} 13|60b7 68r10 78r26 79r33
 33V13*Column_Blob{15R9} 34>7 35>7 13|89b13 133l8 133t19
-34r7 Stmt{11|110R9} 13|90b7 97r10 102r27 108r36 113r36
+34r7 Stmt{11|106R9} 13|90b7 97r10 102r27 108r36 113r36
 35i7 Index{natural} 13|91b7 102r33 109r26 114r26
 38U14*Read_Blob 39=7 40<7 41<7 13|136b14 164l8 164t17
 39r7 B{15R9} 13|137b7 143r10 148r10 148r21 155r12 155r26 160r12 160r20 160r32
@@ -242,10 +251,13 @@ X 18 system.ads
 67M9*Address 13|22r20 93r25 125r20
 69m4*Null_Address{67M9} 13|64r31 97r31 116r28
 81V14*"="{boolean} 13|64r22 97r22 116r19
-X 22 s-memory.ads
+X 24 s-memory.ads
 51V13*Alloc{18|67M9} 101i<c,__gnat_malloc>22
 66U14*Free 102i<c,__gnat_free>22
 74V13*Realloc{18|67M9} 103i<c,__gnat_realloc>22
-X 31 s-stalib.adb
+X 35 s-stausa.ads
+207U14*Initialize 208i<c,__gnat_stack_usage_initialize>22
+272U14*Output_Results 276i<c,__gnat_stack_usage_output_results>22
+X 37 s-stalib.adb
 87U14 Break_Start 88i<c,__gnat_break_start>22
 

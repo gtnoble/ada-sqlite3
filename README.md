@@ -73,11 +73,8 @@ begin
                   ", Name: " & Column_Text(Stmt, 1));
       end loop;
       
-      Finalize(Stmt);
    end;
 
-   -- Close the database
-   Close(DB);
 end Example;
 ```
 
@@ -112,8 +109,6 @@ begin
    Bind_Int(Stmt, 2, 25);
    Step(Stmt);
    
-   Finalize(Stmt);
-   Close(DB);
 end Insert_Example;
 ```
 

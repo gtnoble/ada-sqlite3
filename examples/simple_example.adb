@@ -73,8 +73,6 @@ begin
             Put_Line (Column_Int (Stmt, 2)'Image);
          end if;
       end loop;
-
-      --  Clean up
       
       Put_Line ("Database closed");
    end;

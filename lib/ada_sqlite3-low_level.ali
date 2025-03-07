@@ -1,5 +1,5 @@
 V "GNAT Lib v14"
-A -O2
+A -Og
 A -gnatA
 A -g
 A -gnato
@@ -25,7 +25,7 @@ U ada_sqlite3.low_level%b  ada_sqlite3-low_level.adb  5f75cd49 NE OO PK
 Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
 W ada_sqlite3%s		ada_sqlite3.adb		ada_sqlite3.ali
 
-U ada_sqlite3.low_level%s  ada_sqlite3-low_level.ads  7d1fccb0 EE NE OO PK
+U ada_sqlite3.low_level%s  ada_sqlite3-low_level.ads  4dd0cb7c EE NE OO PK
 Z ada.strings.text_buffers%s  a-sttebu.adb	a-sttebu.ali
 W ada_sqlite3%s		ada_sqlite3.adb		ada_sqlite3.ali
 W interfaces%s		interfac.ads		interfac.ali
@@ -42,25 +42,34 @@ D a-sttebu.ads		20240801081713 f1ad67a2 ada.strings.text_buffers%s
 D a-stuten.ads		20240801081713 c6ced0ae ada.strings.utf_encoding%s
 D a-tags.ads		20240801081713 9eaa38c6 ada.tags%s
 D a-unccon.ads		20240801081713 0e9b276f ada.unchecked_conversion%s
-D ada_sqlite3.ads	20250305193544 c26e4029 ada_sqlite3%s
+D ada_sqlite3.ads	20250307171342 f2a147e5 ada_sqlite3%s
 D ada_sqlite3-low_level.ads  20250302210014 559330fc ada_sqlite3.low_level%s
 D ada_sqlite3-low_level.adb  20250302205208 0ae6fdb5 ada_sqlite3.low_level%b
 D interfac.ads		20240801081713 9111f9c1 interfaces%s
 D i-c.ads		20240801081713 aac316ce interfaces.c%s
 D i-cstrin.ads		20240801081713 5409c1a4 interfaces.c.strings%s
 D system.ads		20240801081714 14286b0f system%s
+D s-atacco.ads		20240801081713 5868e3ba system.address_to_access_conversions%s
 D s-exctab.ads		20240801081713 91bef6ef system.exception_table%s
 D s-finmas.ads		20240801081713 28987ac5 system.finalization_masters%s
 D s-finroo.ads		20240801081713 4ff27390 system.finalization_root%s
+D s-linux.ads		20240801081713 34850a8c system.linux%s
+D s-multip.ads		20240801081713 38ac9f73 system.multiprocessors%s
+D s-oscons.ads		20240821182922 0a1d1474 system.os_constants%s
+D s-osinte.ads		20240801081713 e4f53740 system.os_interface%s
 D s-parame.ads		20240801081713 3597fc11 system.parameters%s
 D s-pooglo.ads		20240801081713 91708d21 system.pool_global%s
 D s-putima.ads		20240801081713 17291fe4 system.put_images%s
 D s-secsta.ads		20240801081713 578279f5 system.secondary_stack%s
 D s-soflin.ads		20240801081713 df77073e system.soft_links%s
 D s-stache.ads		20240801081713 0b81c1fe system.stack_checking%s
+D s-stausa.ads		20240801081713 5be75682 system.stack_usage%s
 D s-stalib.ads		20240801081713 1c9580f6 system.standard_library%s
 D s-stoele.ads		20240801081713 ccded4e8 system.storage_elements%s
 D s-stopoo.ads		20240801081713 e9fa2dd8 system.storage_pools%s
+D s-tasinf.ads		20240801081713 528dde74 system.task_info%s
+D s-taspri.ads		20240801081713 4ec891e7 system.task_primitives%s
+D s-taskin.ads		20240801081713 ebc4edbe system.tasking%s
 D s-traent.ads		20240801081713 c81cbf8c system.traceback_entries%s
 D s-unstyp.ads		20240801081713 fa2a7f59 system.unsigned_types%s
 G a e
@@ -96,7 +105,7 @@ G c Z s s [sqlite3_column_bytes ada_sqlite3__low_level 220 13 none]
 G c Z s s [sqlite3_column_blob ada_sqlite3__low_level 226 13 none]
 G c Z s s [sqlite3_bind_blob ada_sqlite3__low_level 232 13 none]
 X 10 ada_sqlite3.ads
-12K9*Ada_Sqlite3 225e16 11|13r9 240r5 12|9r14 35r5
+12K9*Ada_Sqlite3 251e16 11|13r9 240r5 12|9r14 35r5
 15I9*Result_Code<integer> 11|63r41 71r39 76r28 85r49 113r47 118r35 123r35
 . 128r35 133r35 139r29 146r29 153r30 160r32 169r44 237r44
 60E9*Column_Type 65e17 11|55r54 58r34 12|12r54 24r34
@@ -247,4 +256,7 @@ X 16 system.ads
 . 84r22 228r29 235r19 16|155e11
 67M9*Address 11|19r31 23r36 27r37 31r39 83r28 84r29 228r36 235r26
 69m4*Null_Address{67M9} 11|20r55 24r70 28r73 32r79
+X 31 s-stausa.ads
+207U14*Initialize 208i<c,__gnat_stack_usage_initialize>22
+272U14*Output_Results 276i<c,__gnat_stack_usage_output_results>22
 

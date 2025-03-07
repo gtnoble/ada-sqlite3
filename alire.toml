@@ -21,4 +21,4 @@ aunit = "25.0.0"
 "*".contracts = ["-gnata"]
 "*".runtime_checks = ["-gnato"]
 "*".debug_info = ["-g"]
-"*".optimization = ["-O2"]
+"*".optimization = ["-Og"]

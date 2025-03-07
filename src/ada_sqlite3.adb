@@ -55,28 +55,28 @@ package body Ada_Sqlite3 is
       C_Filename : CS.chars_ptr := CS.New_String (Filename);
       DB_Handle  : aliased LL.Sqlite3;
       Result     : Result_Code;
-      DB         : Database;
    begin
-      --  Open the database
-      Result := LL.Sqlite3_Open_V2
-        (Filename => C_Filename,
-         DB       => DB_Handle'Access,
-         Flags    => C.int (Flags),
-         VFS      => CS.Null_Ptr);
+      return DB : Database do
+         --  Open the database
+         Result := LL.Sqlite3_Open_V2
+           (Filename => C_Filename,
+            DB       => DB_Handle'Access,
+            Flags    => C.int (Flags),
+            VFS      => CS.Null_Ptr);
 
-      --  Free the filename string
-      CS.Free (C_Filename);
+         --  Free the filename string
+         CS.Free (C_Filename);
 
-      --  Check for errors
-      if Result /= OK then
-         Raise_Error (Result, "Failed to open database: " & Filename);
-      end if;
+         --  Check for errors
+         if Result /= OK then
+            Raise_Error (Result, "Failed to open database: " & Filename);
+         end if;
 
-      --  Set the database handle
-      DB.Handle := System.Address (DB_Handle);
-      DB.Is_Open_Flag := True;
-      
-      return DB;
+         --  Set the database handle
+         DB.Handle := System.Address (DB_Handle);
+         DB.Is_Open_Flag := True;
+         DB.Finalizing := False;
+      end return;
    end Open;
 
    --  Close a database connection
@@ -124,15 +124,15 @@ package body Ada_Sqlite3 is
 
       --  Check for errors
       if Result /= OK then
-         declare
-            Error_Message : constant String := CS.Value (Err_Msg);
-         begin
-            CS.Free (Err_Msg);
-            Raise_Error (Result, "SQL execution error: " & Error_Message);
-         end;
-      elsif Err_Msg /= CS.Null_Ptr then
-         --  Free the error message if it was allocated but no error occurred
-         CS.Free (Err_Msg);
+            if Err_Msg /= CS.Null_Ptr then
+                declare
+                    Error_Message : constant String := CS.Value (Err_Msg);
+                begin
+                    Raise_Error (Result, "SQL execution error: " & Error_Message);
+                end;
+            else
+                Raise_Error (Result, "SQL execution error");
+            end if;
       end if;
    end Execute;
 
@@ -156,24 +156,104 @@ package body Ada_Sqlite3 is
       return Integer (LL.Sqlite3_Changes (LL.Sqlite3 (DB.Handle)));
    end Changes;
 
+   --  Register a statement with its database
+   procedure Register_Statement (DB : in out Database; Stmt : in out Statement'Class) is
+      New_Node : constant Statement_List_Access := new Statement_List'(
+         Stmt => Stmt'Unchecked_Access,
+         Next => DB.Statements
+      );
+   begin
+      DB.Statements := New_Node;
+      Stmt.List_Node := New_Node;
+   end Register_Statement;
+
+   --  Unregister a statement from its database
+   procedure Unregister_Statement (Stmt : in out Statement'Class) is
+   begin
+      if Stmt.DB /= null and then Stmt.List_Node /= null and then not Stmt.DB.Finalizing then
+         declare
+            Current : Statement_List_Access := Stmt.DB.Statements;
+            Previous : Statement_List_Access := null;
+         begin
+            --  Find the statement in the list
+            while Current /= null loop
+               if Current = Stmt.List_Node then
+                  --  Remove from list
+                  if Previous = null then
+                     --  It's the first node
+                     Stmt.DB.Statements := Current.Next;
+                  else
+                     --  It's not the first node
+                     Previous.Next := Current.Next;
+                  end if;
+                  
+                  --  Free the node
+                  Stmt.List_Node := null;
+                  exit;
+               end if;
+               
+               Previous := Current;
+               Current := Current.Next;
+            end loop;
+         end;
+      end if;
+   end Unregister_Statement;
+
+   --  Finalize all statements associated with a database
+   procedure Finalize_All_Statements (DB : in out Database) is
+      Current : Statement_List_Access := DB.Statements;
+      Next_Node : Statement_List_Access;
+   begin
+      while Current /= null loop
+         Next_Node := Current.Next;
+         
+         --  Finalize the statement if it still exists and isn't already finalized
+         if Current.Stmt /= null and then not Current.Stmt.Finalized then
+            begin
+               --  Mark the statement as finalized to prevent double finalization
+               Current.Stmt.Finalized := True;
+               
+               --  Finalize the statement
+               Finalize_Statement (Current.Stmt.all);
+            exception
+               when others =>
+                  --  Ignore exceptions during finalization
+                  null;
+            end;
+         end if;
+         
+         --  Free the node
+         Current := Next_Node;
+      end loop;
+      
+      --  Clear the statements list
+      DB.Statements := null;
+   end Finalize_All_Statements;
+
    --  Finalize a database connection
    overriding procedure Finalize (DB : in out Database) is
    begin
+      --  Set finalizing flag to prevent statements from trying to unregister
+      DB.Finalizing := True;
       
+      --  Finalize all statements first
+      Finalize_All_Statements (DB);
+      
+      --  Close the database
+      Close (DB);
    end Finalize;
 
    --  Statement implementation
 
    --  Prepare a SQL statement
    function Prepare
-     (DB   : in out Database;
+     (DB   : in out Database'Class;
       SQL  : String) return Statement
    is
       C_SQL    : CS.chars_ptr := CS.New_String (SQL);
       Stmt_Handle : aliased LL.Sqlite3_Stmt;
       Tail     : aliased CS.chars_ptr := CS.Null_Ptr;
       Result   : Result_Code;
-      Stmt     : Statement;
    begin
       if not DB.Is_Open then
          raise SQLite_Error with "Database is not open";
@@ -194,32 +274,47 @@ package body Ada_Sqlite3 is
          Raise_Error (Result, "Failed to prepare statement: " & SQL);
       end if;
 
-      --  Set the statement handle
-      Stmt.Handle := System.Address (Stmt_Handle);
-      Stmt.DB := DB'Unchecked_Access;
-      
-      return Stmt;
+      return Stmt : Statement do
+         --  Set the statement handle
+         Stmt.Handle := System.Address (Stmt_Handle);
+         Stmt.DB := DB'Unchecked_Access;
+         Stmt.Finalized := False;
+         
+         --  Register the statement with the database
+         Register_Statement (DB, Stmt);
+      end return;
    end Prepare;
 
    --  Finalize a prepared statement
    procedure Finalize_Statement (Stmt : in out Statement'Class) is
    begin
-      --  Only finalize if the statement handle is not null
-      if Stmt.Handle /= System.Null_Address then
+      --  Only finalize if not already finalized and handle is not null
+      if not Stmt.Finalized and then Stmt.Handle /= System.Null_Address then
+         --  Mark as finalized first to prevent double finalization
+         Stmt.Finalized := True;
+         
          declare
-            Result : Result_Code;
             Temp_Handle : constant LL.Sqlite3_Stmt := LL.Sqlite3_Stmt (Stmt.Handle);
          begin
-            --  Set the handle to null first to prevent double finalization
+            --  Set the handle to null immediately to prevent any further use
             Stmt.Handle := System.Null_Address;
+            
+            --  Unregister from the database if it's still valid and not being finalized
+            if Stmt.DB /= null and then Stmt.DB.Is_Open_Flag and then not Stmt.DB.Finalizing then
+               Unregister_Statement (Stmt);
+            end if;
+            
+            --  Clear references
             Stmt.DB := null;
+            Stmt.List_Node := null;
             
             --  Finalize the statement
+            declare
+               Result : Result_Code;
             begin
                Result := LL.Sqlite3_Finalize (Temp_Handle);
-               if Result /= OK and Result /= MISUSE then
-                  Raise_Error (Result, "Failed to finalize statement");
-               end if;
+               --  Ignore any errors during finalization
+               pragma Unreferenced (Result);
             exception
                when others =>
                   --  Ignore any exceptions during finalization
