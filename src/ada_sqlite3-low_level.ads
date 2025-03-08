@@ -31,10 +31,25 @@ package Ada_Sqlite3.Low_Level is
    type Sqlite3_Context is new System.Address;
    Null_Sqlite3_Context : constant Sqlite3_Context := Sqlite3_Context (System.Null_Address);
 
-   --  SQLite3 destructor type
-   type Destructor_Type is new Integer;
-   SQLITE_STATIC    : constant Destructor_Type := 0;
-   SQLITE_TRANSIENT : constant Destructor_Type := -1;
+   --  SQLite3 destructor type (function pointer address)
+   type Destructor_Type is new System.Address;
+
+   --  Destructor function type
+   type Destructor_Callback is access procedure (Arg : System.Address);
+   pragma Convention (C, Destructor_Callback);
+
+   --  Custom destructor to free chars_ptr
+   procedure Free_Chars_Ptr (Arg : System.Address);
+   pragma Convention (C, Free_Chars_Ptr);
+   function Free_Chars_Ptr_Address return Destructor_Type;
+
+   --  Custom destructor to free memory
+   procedure Free_Memory (Arg : System.Address);
+   pragma Convention (C, Free_Memory);
+   function Free_Memory_Address return Destructor_Type;
+
+   --  Function to copy blob data
+   function Copy_Blob_Data (Data : System.Address; Size : C.int) return System.Address;
 
    --  SQLite3 fundamental datatypes
    type Datatype is

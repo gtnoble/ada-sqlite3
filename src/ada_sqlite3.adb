@@ -481,12 +481,11 @@ package body Ada_Sqlite3 is
          Index     => C.int (Index),
          Value     => C_Value,
          N_Bytes   => C.int (Value'Length),
-         Destructor => LL.SQLITE_TRANSIENT);
+         Destructor => LL.Free_Chars_Ptr_Address);
 
-      --  Free the string
-      CS.Free (C_Value);
-
+      -- Only free and raise error if binding failed
       if Result /= OK then
+         CS.Free (C_Value);
          Raise_Error (Result, "Failed to bind text value");
       end if;
    end Bind_Text;

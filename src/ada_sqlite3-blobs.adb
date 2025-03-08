@@ -71,13 +71,18 @@ package body Ada_Sqlite3.Blobs is
            (Stmt  => LL.Sqlite3_Stmt (Stmt.Handle),
             Index => C.int (Index));
       else
-         --  Bind the BLOB data
-         Result := LL.Sqlite3_Bind_Blob
-           (Stmt      => LL.Sqlite3_Stmt (Stmt.Handle),
-            Index     => C.int (Index),
-            Value     => Value.Data.all'Address,
-            N_Bytes   => C.int (Value.Data'Length),
-            Destructor => LL.SQLITE_TRANSIENT);
+         --  Create a copy of the blob data for SQLite
+         declare
+            Blob_Copy : constant System.Address := 
+              LL.Copy_Blob_Data(Value.Data.all'Address, C.int(Value.Data'Length));
+         begin
+            Result := LL.Sqlite3_Bind_Blob
+              (Stmt      => LL.Sqlite3_Stmt (Stmt.Handle),
+               Index     => C.int (Index),
+               Value     => Blob_Copy,
+               N_Bytes   => C.int (Value.Data'Length),
+               Destructor => LL.Free_Memory_Address);
+         end;
       end if;
 
       if Result /= OK then

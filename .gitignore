@@ -2,3 +2,4 @@ obj
 tests/bin
 tests/crash_logs
 tests/crash_dump.bin
+lib
