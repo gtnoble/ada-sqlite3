@@ -6,12 +6,11 @@
 -- Licensed under the terms of the MIT License or Apache-2.0 with LLVM exception
 -------------------------------------------------------------------------------
 
-with Ada_Sqlite3.Low_Level;
 with Interfaces.C;
 with Interfaces.C.Strings;
+with Ada_Sqlite3.Low_Level;
 
 package body Ada_Sqlite3 is
-
    package C renames Interfaces.C;
    package CS renames Interfaces.C.Strings;
    package LL renames Ada_Sqlite3.Low_Level;
@@ -46,14 +45,13 @@ package body Ada_Sqlite3 is
    end Version;
 
    --  Database implementation
-
    --  Open a new database connection
    function Open
      (Filename : String;
       Flags    : Open_Flag := OPEN_READWRITE or OPEN_CREATE) return Database
    is
       C_Filename : CS.chars_ptr := CS.New_String (Filename);
-      DB_Handle  : aliased LL.Sqlite3;
+      DB_Handle  : aliased Sqlite3;
       Result     : Result_Code;
    begin
       return DB : Database do
@@ -84,7 +82,7 @@ package body Ada_Sqlite3 is
       Result : Result_Code;
    begin
       if DB.Is_Open then
-         Result := LL.Sqlite3_Close (LL.Sqlite3 (DB.Handle));
+         Result := LL.Sqlite3_Close (Sqlite3 (DB.Handle));
          if Result /= OK then
             Raise_Error (Result, "Failed to close database");
          end if;
@@ -113,7 +111,7 @@ package body Ada_Sqlite3 is
       end if;
 
       Result := LL.Sqlite3_Exec
-        (DB          => LL.Sqlite3 (DB.Handle),
+        (DB          => Sqlite3 (DB.Handle),
          SQL         => C_SQL,
          Callback    => System.Null_Address,
          Callback_Arg => System.Null_Address,
@@ -143,7 +141,7 @@ package body Ada_Sqlite3 is
          raise SQLite_Error with "Database is not open";
       end if;
 
-      return Long_Integer (LL.Sqlite3_Last_Insert_Rowid (LL.Sqlite3 (DB.Handle)));
+      return Long_Integer (LL.Sqlite3_Last_Insert_Rowid (Sqlite3 (DB.Handle)));
    end Last_Insert_Row_ID;
 
    --  Get the number of rows changed by the last statement
@@ -153,7 +151,7 @@ package body Ada_Sqlite3 is
          raise SQLite_Error with "Database is not open";
       end if;
 
-      return Integer (LL.Sqlite3_Changes (LL.Sqlite3 (DB.Handle)));
+      return Integer (LL.Sqlite3_Changes (Sqlite3 (DB.Handle)));
    end Changes;
 
    --  Register a statement with its database
@@ -244,14 +242,13 @@ package body Ada_Sqlite3 is
    end Finalize;
 
    --  Statement implementation
-
    --  Prepare a SQL statement
    function Prepare
      (DB   : in out Database'Class;
       SQL  : String) return Statement
    is
       C_SQL    : CS.chars_ptr := CS.New_String (SQL);
-      Stmt_Handle : aliased LL.Sqlite3_Stmt;
+      Stmt_Handle : aliased Sqlite3_Stmt;
       Tail     : aliased CS.chars_ptr := CS.Null_Ptr;
       Result   : Result_Code;
    begin
@@ -260,7 +257,7 @@ package body Ada_Sqlite3 is
       end if;
 
       Result := LL.Sqlite3_Prepare_V2
-        (DB        => LL.Sqlite3 (DB.Handle),
+        (DB        => Sqlite3 (DB.Handle),
          SQL       => C_SQL,
          N_Bytes   => C.int (SQL'Length),
          Stmt      => Stmt_Handle'Access,
@@ -294,7 +291,7 @@ package body Ada_Sqlite3 is
          Stmt.Finalized := True;
          
          declare
-            Temp_Handle : constant LL.Sqlite3_Stmt := LL.Sqlite3_Stmt (Stmt.Handle);
+            Temp_Handle : constant Sqlite3_Stmt := Sqlite3_Stmt (Stmt.Handle);
          begin
             --  Set the handle to null immediately to prevent any further use
             Stmt.Handle := System.Null_Address;
@@ -338,7 +335,7 @@ package body Ada_Sqlite3 is
          raise SQLite_Error with "Statement is not prepared";
       end if;
 
-      Result := LL.Sqlite3_Reset (LL.Sqlite3_Stmt (Stmt.Handle));
+      Result := LL.Sqlite3_Reset (Sqlite3_Stmt (Stmt.Handle));
       if Result /= OK then
          Raise_Error (Result, "Failed to reset statement");
       end if;
@@ -352,7 +349,7 @@ package body Ada_Sqlite3 is
          raise SQLite_Error with "Statement is not prepared";
       end if;
 
-      Result := LL.Sqlite3_Clear_Bindings (LL.Sqlite3_Stmt (Stmt.Handle));
+      Result := LL.Sqlite3_Clear_Bindings (Sqlite3_Stmt (Stmt.Handle));
       if Result /= OK then
          Raise_Error (Result, "Failed to clear bindings");
       end if;
@@ -365,7 +362,7 @@ package body Ada_Sqlite3 is
          raise SQLite_Error with "Statement is not prepared";
       end if;
 
-      return LL.Sqlite3_Step (LL.Sqlite3_Stmt (Stmt.Handle));
+      return LL.Sqlite3_Step (Sqlite3_Stmt(Stmt.Handle));
    end Step;
 
    --  Execute a prepared statement and check for errors
@@ -389,7 +386,7 @@ package body Ada_Sqlite3 is
       end if;
 
       Result := LL.Sqlite3_Bind_Null
-        (Stmt  => LL.Sqlite3_Stmt (Stmt.Handle),
+        (Stmt  => Sqlite3_Stmt (Stmt.Handle),
          Index => C.int (Index));
 
       if Result /= OK then
@@ -410,7 +407,7 @@ package body Ada_Sqlite3 is
       end if;
 
       Result := LL.Sqlite3_Bind_Int
-        (Stmt  => LL.Sqlite3_Stmt (Stmt.Handle),
+        (Stmt  => Sqlite3_Stmt (Stmt.Handle),
          Index => C.int (Index),
          Value => C.int (Value));
 
@@ -432,7 +429,7 @@ package body Ada_Sqlite3 is
       end if;
 
       Result := LL.Sqlite3_Bind_Int64
-        (Stmt  => LL.Sqlite3_Stmt (Stmt.Handle),
+        (Stmt  => Sqlite3_Stmt (Stmt.Handle),
          Index => C.int (Index),
          Value => C.long (Value));
 
@@ -454,7 +451,7 @@ package body Ada_Sqlite3 is
       end if;
 
       Result := LL.Sqlite3_Bind_Double
-        (Stmt  => LL.Sqlite3_Stmt (Stmt.Handle),
+        (Stmt  => Sqlite3_Stmt (Stmt.Handle),
          Index => C.int (Index),
          Value => C.double (Value));
 
@@ -477,7 +474,7 @@ package body Ada_Sqlite3 is
       end if;
 
       Result := LL.Sqlite3_Bind_Text
-        (Stmt      => LL.Sqlite3_Stmt (Stmt.Handle),
+        (Stmt      => Sqlite3_Stmt (Stmt.Handle),
          Index     => C.int (Index),
          Value     => C_Value,
          N_Bytes   => C.int (Value'Length),
@@ -489,6 +486,29 @@ package body Ada_Sqlite3 is
          Raise_Error (Result, "Failed to bind text value");
       end if;
    end Bind_Text;
+
+   procedure Bind_Text_UTF16
+     (Stmt  : in out Statement;
+      Index : Positive;
+      Value : Wide_String)
+   is
+      Result  : Result_Code;
+   begin
+      if Stmt.Handle = System.Null_Address then
+         raise SQLite_Error with "Statement is not prepared";
+      end if;
+
+      Result := LL.Sqlite3_Bind_Text16
+        (Stmt      => Sqlite3_Stmt (Stmt.Handle),
+         Index     => C.int (Index),
+         Value     => Value'Address,
+         N_Bytes   => C.int (Value'Length * 2),  -- Each wide char is 2 bytes
+         Destructor => LL.SQLITE_TRANSIENT);
+
+      if Result /= OK then
+         Raise_Error (Result, "Failed to bind UTF-16 text value");
+      end if;
+   end Bind_Text_UTF16;
 
    --  Bind a parameter by name
    procedure Bind_Parameter_Index
@@ -504,7 +524,7 @@ package body Ada_Sqlite3 is
       end if;
 
       Index := LL.Sqlite3_Bind_Parameter_Index
-        (Stmt => LL.Sqlite3_Stmt (Stmt.Handle),
+        (Stmt => Sqlite3_Stmt (Stmt.Handle),
          Name => C_Name);
 
       --  Free the string
@@ -524,7 +544,7 @@ package body Ada_Sqlite3 is
          raise SQLite_Error with "Statement is not prepared";
       end if;
 
-      return Natural (LL.Sqlite3_Column_Count (LL.Sqlite3_Stmt (Stmt.Handle)));
+      return Natural (LL.Sqlite3_Column_Count (Sqlite3_Stmt (Stmt.Handle)));
    end Column_Count;
 
    --  Get the name of a column
@@ -539,7 +559,7 @@ package body Ada_Sqlite3 is
       end if;
 
       Name_Ptr := LL.Sqlite3_Column_Name
-        (Stmt  => LL.Sqlite3_Stmt (Stmt.Handle),
+        (Stmt  => Sqlite3_Stmt (Stmt.Handle),
          Index => C.int (Index));
 
       if Name_Ptr = CS.Null_Ptr then
@@ -561,7 +581,7 @@ package body Ada_Sqlite3 is
       end if;
 
       Datatype := LL.Sqlite3_Column_Type
-        (Stmt  => LL.Sqlite3_Stmt (Stmt.Handle),
+        (Stmt  => Sqlite3_Stmt (Stmt.Handle),
          Index => C.int (Index));
 
       return LL.To_Column_Type (Datatype);
@@ -578,7 +598,7 @@ package body Ada_Sqlite3 is
       end if;
 
       return Integer (LL.Sqlite3_Column_Int
-        (Stmt  => LL.Sqlite3_Stmt (Stmt.Handle),
+        (Stmt  => Sqlite3_Stmt (Stmt.Handle),
          Index => C.int (Index)));
    end Column_Int;
 
@@ -593,7 +613,7 @@ package body Ada_Sqlite3 is
       end if;
 
       return Long_Integer (LL.Sqlite3_Column_Int64
-        (Stmt  => LL.Sqlite3_Stmt (Stmt.Handle),
+        (Stmt  => Sqlite3_Stmt (Stmt.Handle),
          Index => C.int (Index)));
    end Column_Int64;
 
@@ -608,7 +628,7 @@ package body Ada_Sqlite3 is
       end if;
 
       return Float (LL.Sqlite3_Column_Double
-        (Stmt  => LL.Sqlite3_Stmt (Stmt.Handle),
+        (Stmt  => Sqlite3_Stmt (Stmt.Handle),
          Index => C.int (Index)));
    end Column_Double;
 
@@ -624,7 +644,7 @@ package body Ada_Sqlite3 is
       end if;
 
       Text_Ptr := LL.Sqlite3_Column_Text
-        (Stmt  => LL.Sqlite3_Stmt (Stmt.Handle),
+        (Stmt  => Sqlite3_Stmt (Stmt.Handle),
          Index => C.int (Index));
 
       if Text_Ptr = CS.Null_Ptr then
@@ -633,6 +653,31 @@ package body Ada_Sqlite3 is
 
       return CS.Value (Text_Ptr);
    end Column_Text;
+
+   --  Get a Wide_String value from a column as UTF-16 text
+   function Column_Text_UTF16
+     (Stmt  : Statement;
+      Index : Natural) return Wide_String
+   is
+      Text_Ptr : constant System.Address := LL.Sqlite3_Column_Text16
+        (Stmt  => Sqlite3_Stmt (Stmt.Handle),
+         Index => C.int (Index));
+      Len     : constant Natural := Natural(LL.Sqlite3_Column_Bytes16
+        (Stmt  => Sqlite3_Stmt (Stmt.Handle),
+         Index => C.int (Index))) / 2;
+      Result  : Wide_String(1..Len);
+      for Result'Address use Text_Ptr;
+   begin
+      if Stmt.Handle = System.Null_Address then
+         raise SQLite_Error with "Statement is not prepared";
+      end if;
+
+      if Text_Ptr = System.Null_Address then
+         return "";
+      end if;
+
+      return Result;
+   end Column_Text_UTF16;
 
    --  Check if a column value is NULL
    function Column_Is_Null

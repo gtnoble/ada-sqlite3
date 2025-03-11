@@ -235,12 +235,16 @@ package body Transaction_Tests is
       --  Try to execute invalid SQL within the transaction
       Exception_Raised := False;
       declare
-         Stmt : Statement := Prepare (DB, "INSERT INTO nonexistent_table (value) VALUES ('value2')");
       begin
-         Step (Stmt);
+         declare
+            Stmt : Statement := Prepare (DB, "INSERT INTO nonexistent_table (value) VALUES ('value2')");
+            pragma Unreferenced (Stmt);
+         begin
+            null;  -- Required empty statement
+         end;      
       exception
-         when SQLite_Error =>
-            Exception_Raised := True;
+            when SQLite_Error =>
+               Exception_Raised := True;
       end;
       
       --  Check that an exception was raised

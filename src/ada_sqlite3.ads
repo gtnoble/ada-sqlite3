@@ -10,7 +10,6 @@ with Ada.Finalization;
 with System;
 
 package Ada_Sqlite3 is
-
    --  SQLite3 Error Codes
    type Result_Code is new Integer;
 
@@ -96,6 +95,12 @@ package Ada_Sqlite3 is
    --  Get the last inserted row ID
    function Last_Insert_Row_ID (DB : Database) return Long_Integer;
 
+   -- Forward declarations for SQLite3 handles
+   type Sqlite3 is private;
+   type Sqlite3_Stmt is private;
+   type Sqlite3_Value is private;
+   type Sqlite3_Context is private;
+
    --  Get the number of rows changed by the last statement
    function Changes (DB : Database) return Integer;
 
@@ -151,6 +156,12 @@ package Ada_Sqlite3 is
       Index : Positive;
       Value : String);
 
+   --  Bind a Wide_String value to a parameter as UTF-16 text
+   procedure Bind_Text_UTF16
+     (Stmt  : in out Statement;
+      Index : Positive;
+      Value : Wide_String);
+
    --  Bind a parameter by name
    procedure Bind_Parameter_Index
      (Stmt      : Statement;
@@ -190,61 +201,71 @@ package Ada_Sqlite3 is
      (Stmt  : Statement;
       Index : Natural) return String;
 
+   --  Get a Wide_String value from a column as UTF-16 text
+   function Column_Text_UTF16
+     (Stmt  : Statement;
+      Index : Natural) return Wide_String;
+
    --  Check if a column value is NULL
    function Column_Is_Null
      (Stmt  : Statement;
       Index : Natural) return Boolean;
 
 private
+   -- SQLite3 handles
+   type Sqlite3 is new System.Address;
+   type Sqlite3_Stmt is new System.Address;
+   type Sqlite3_Value is new System.Address;
+   type Sqlite3_Context is new System.Address;
+   
+   type Database_Access is access all Database'Class;
+   type Statement_Access is access all Statement'Class;
 
-type Database_Access is access all Database'Class;
-type Statement_Access is access all Statement'Class;
+   --  Forward declaration for Statement_List
+   type Statement_List;
+   type Statement_List_Access is access Statement_List;
 
---  Forward declaration for Statement_List
-type Statement_List;
-type Statement_List_Access is access Statement_List;
+   --  List of statements associated with a database
+   type Statement_List is record
+      Stmt : Statement_Access;
+      Next : Statement_List_Access;
+   end record;
 
---  List of statements associated with a database
-type Statement_List is record
-   Stmt : Statement_Access;
-   Next : Statement_List_Access;
-end record;
+   type Database is new Ada.Finalization.Limited_Controlled with record
+      Handle       : System.Address := System.Null_Address;
+      Is_Open_Flag : Boolean := False;
+      Statements   : Statement_List_Access := null;  --  List of associated statements
+      Finalizing   : Boolean := False;  --  Flag to indicate database is being finalized
+   end record;
 
-type Database is new Ada.Finalization.Limited_Controlled with record
-   Handle       : System.Address := System.Null_Address;
-   Is_Open_Flag : Boolean := False;
-   Statements   : Statement_List_Access := null;  --  List of associated statements
-   Finalizing   : Boolean := False;  --  Flag to indicate database is being finalized
-end record;
-
---  Make Database a reference-counted type
-type Database_Ref is access all Database;
-for Database_Ref'Storage_Size use 0;  -- No heap allocation
+   --  Make Database a reference-counted type
+   type Database_Ref is access all Database;
+   for Database_Ref'Storage_Size use 0;  -- No heap allocation
 
    --  Close a database connection
    procedure Close (DB : in out Database);
 
    overriding procedure Finalize (DB : in out Database);
 
-type Statement is new Ada.Finalization.Limited_Controlled with record
-   Handle      : System.Address := System.Null_Address;
-   DB          : Database_Access := null;
-   List_Node   : Statement_List_Access := null;  --  Reference to list node containing this statement
-   Finalized   : Boolean := False;  --  Flag to track whether the statement has been finalized
-end record;
+   type Statement is new Ada.Finalization.Limited_Controlled with record
+      Handle      : System.Address := System.Null_Address;
+      DB          : Database_Access := null;
+      List_Node   : Statement_List_Access := null;  --  Reference to list node containing this statement
+      Finalized   : Boolean := False;  --  Flag to track whether the statement has been finalized
+   end record;
 
---  Make Statement a reference-counted type
-type Statement_Ref is access all Statement;
-for Statement_Ref'Storage_Size use 0;  -- No heap allocation
+   --  Make Statement a reference-counted type
+   type Statement_Ref is access all Statement;
+   for Statement_Ref'Storage_Size use 0;  -- No heap allocation
     
---  Finalize a prepared statement (release resources)
-procedure Finalize_Statement (Stmt : in out Statement'Class);
+   --  Finalize a prepared statement (release resources)
+   procedure Finalize_Statement (Stmt : in out Statement'Class);
 
---  Register a statement with its database
-procedure Register_Statement (DB : in out Database; Stmt : in out Statement'Class);
+   --  Register a statement with its database
+   procedure Register_Statement (DB : in out Database; Stmt : in out Statement'Class);
 
---  Unregister a statement from its database
-procedure Unregister_Statement (Stmt : in out Statement'Class);
+   --  Unregister a statement from its database
+   procedure Unregister_Statement (Stmt : in out Statement'Class);
 
    overriding procedure Finalize (Stmt : in out Statement);
 

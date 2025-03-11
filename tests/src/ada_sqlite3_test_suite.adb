@@ -11,6 +11,7 @@ with Database_Tests;
 with Statement_Tests;
 with Blob_Tests;
 with Transaction_Tests;
+with Generic_Function_Tests;
 
 package body Ada_Sqlite3_Test_Suite is
 
@@ -23,8 +24,9 @@ package body Ada_Sqlite3_Test_Suite is
       --  Add the test cases to the suite
       Result.Add_Test (Database_Tests.Suite);
       Result.Add_Test (Statement_Tests.Suite);
-      --  Result.Add_Test (Blob_Tests.Suite);
+      Result.Add_Test (Blob_Tests.Suite);
       Result.Add_Test (Transaction_Tests.Suite);
+      Result.Add_Test (Generic_Function_Tests.Suite);
       
       return Result;
    end Suite;
