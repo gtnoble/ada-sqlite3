@@ -17,6 +17,26 @@ package body Generic_Function_Tests is
    Result  : Unbounded_Wide_String := Null_Unbounded_Wide_String;
    Context : Unbounded_Wide_String := Null_Unbounded_Wide_String;
    
+   -- Callback for bounds checking tests
+   function Bounds_Check_Callback 
+     (Args : Test_Functions.Function_Args;
+      Test_Context : Unbounded_Wide_String) return Test_Functions.Result_Type
+   is
+      Len : constant Natural := Test_Functions.Arg_Count(Args);
+   begin
+      -- Try to access at Length index (should raise error)
+      declare
+         Value : constant Integer := Test_Functions.Get_Int(Args, Len);
+         pragma Unreferenced (Value);
+      begin
+         return (Kind => Test_Functions.Int_Result, Int_Value => 0);
+      end;
+   exception
+      when Constraint_Error =>
+         -- Expected error, return length as confirmation
+         return (Kind => Test_Functions.Int_Result, Int_Value => Len);
+   end Bounds_Check_Callback;
+   
    -- Scalar function callback
    -- Callback that returns integer for scalar tests
    function Int_Callback 
@@ -210,6 +230,59 @@ package body Generic_Function_Tests is
              "Context not properly passed to callback");
    end Test_Context_Cleanup;
    
+   procedure Test_Out_Of_Bounds_Access (T : in out Test) is
+      pragma Unreferenced (T);
+      DB : Database := Open (":memory:", OPEN_READWRITE or OPEN_CREATE);
+   begin
+      Test_Functions.Create_Function
+        (DB      => DB,
+         Name    => "bounds_test",
+         N_Args  => 1,
+         Func    => Bounds_Check_Callback'Access,
+         Context => Null_Unbounded_Wide_String);
+      
+      -- Test with one argument
+      declare
+         Stmt : Statement := Prepare(DB, "SELECT bounds_test(42)");
+      begin
+         Assert(Step(Stmt) = ROW, "Expected a row result");
+         Assert(Column_Int(Stmt, 0) = 1, 
+                "Function should return argument count as proof of bounds check");
+      end;
+      
+      -- Test with no arguments
+      declare
+         Stmt : Statement := Prepare(DB, "SELECT bounds_test()");
+      begin
+         Assert(Step(Stmt) = ROW, "Expected a row result");
+         Assert(Column_Int(Stmt, 0) = 0, 
+                "Function should return 0 for empty args");
+      end;
+   end Test_Out_Of_Bounds_Access;
+   
+   procedure Test_Empty_Args (T : in out Test) is
+      pragma Unreferenced (T);
+      DB : Database := Open (":memory:", OPEN_READWRITE or OPEN_CREATE);
+   begin
+      Result := Null_Unbounded_Wide_String;
+      
+      -- Create a function that expects zero arguments
+      Test_Functions.Create_Function
+        (DB      => DB,
+         Name    => "empty_args",
+         N_Args  => 0,
+         Func    => Int_Callback'Access,
+         Context => Null_Unbounded_Wide_String);
+      
+      declare
+         Stmt : Statement := Prepare(DB, "SELECT empty_args()");
+      begin
+         Assert(Step(Stmt) = ROW, "Expected a row result");
+         Assert(Column_Int(Stmt, 0) = 42, 
+                "Function should return default value for empty args");
+      end;
+   end Test_Empty_Args;
+   
    procedure Test_Multiple_Functions (T : in out Test) is
       pragma Unreferenced (T);
       DB : Database := Open (":memory:", OPEN_READWRITE or OPEN_CREATE);
@@ -258,6 +331,8 @@ package body Generic_Function_Tests is
       Result.Add_Test (Caller.Create ("Test_Window_Function", Test_Window_Function'Access));
       Result.Add_Test (Caller.Create ("Test_UTF16_Text", Test_UTF16_Text'Access));
       Result.Add_Test (Caller.Create ("Test_Context_Cleanup", Test_Context_Cleanup'Access));
+      Result.Add_Test (Caller.Create ("Test_Empty_Args", Test_Empty_Args'Access));
+      Result.Add_Test (Caller.Create ("Test_Out_Of_Bounds_Access", Test_Out_Of_Bounds_Access'Access));
       Result.Add_Test (Caller.Create ("Test_Multiple_Functions", Test_Multiple_Functions'Access));
       return Result;
    end Suite;

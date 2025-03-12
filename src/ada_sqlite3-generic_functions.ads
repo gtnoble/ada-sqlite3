@@ -1,7 +1,9 @@
 with Ada.Streams;
 with Ada.Containers.Indefinite_Holders;
 with Ada_Sqlite3.Low_Level;
+with Interfaces.C;
 use type Ada.Streams.Stream_Element_Array;  -- Make equality operator visible
+use type Interfaces.C.size_t;
 
 generic
    type Context_Type (<>) is private;
@@ -23,7 +25,8 @@ package Ada_Sqlite3.Generic_Functions is
      (Element_Type => Ada.Streams.Stream_Element_Array);
 
    -- Argument access
-   subtype Function_Args is Low_Level.Sqlite3_Value_Array;
+   subtype Function_Argc is Natural range Natural(Low_Level.Sqlite_Argc'First) .. Natural(Low_Level.Sqlite_Argc'Last);
+   type Function_Args (Length : Function_Argc) is private;
    function Arg_Count (Args : Function_Args) return Natural;
    function Get_Type (Args : Function_Args; Index : Natural) return Ada_Sqlite3.Low_Level.Datatype;
 
@@ -123,6 +126,10 @@ package Ada_Sqlite3.Generic_Functions is
       Flags        : Function_Flags := 0);
 
 private
+   type Function_Args (Length : Function_Argc) is record
+      Data : Low_Level.Sqlite3_Value_Array (0 .. Low_Level.Sqlite_Argc(Length)  - 1);
+   end record;
+
    type Function_Kind is (Scalar, Aggregate, Window);
    
    type Callback_Data (Kind : Function_Kind := Scalar) is record

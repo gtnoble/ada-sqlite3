@@ -13,6 +13,7 @@ with Ada.Unchecked_Conversion;
 
 package Ada_Sqlite3.Low_Level is
    package C renames Interfaces.C;
+   use type C.size_t;
    package CS renames Interfaces.C.Strings;
 
    -- Use types from Ada_Sqlite3
@@ -190,7 +191,10 @@ package Ada_Sqlite3.Low_Level is
    pragma Import (C, Sqlite3_Result_Error_Too_Big, "sqlite3_result_error_toobig");
 
    -- Function callback types
-   type Sqlite3_Value_Array is array (C.size_t range <>) of Sqlite3_Value
+   subtype Sqlite_Argc is C.size_t range 0 .. 127;
+   -- SQLite allows 0 to 127 arguments, array is indexed from 0 to 127
+   subtype Sqlite_Args_Index is C.size_t range 0 .. Sqlite_Argc'Last - 1;
+   type Sqlite3_Value_Array is array (Sqlite_Args_Index range <>) of Sqlite3_Value
      with Convention => C;
 
    type Sqlite3_Func_Callback is access procedure (
