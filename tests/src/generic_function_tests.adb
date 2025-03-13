@@ -22,11 +22,12 @@ package body Generic_Function_Tests is
      (Args : Test_Functions.Function_Args;
       Test_Context : Unbounded_Wide_String) return Test_Functions.Result_Type
    is
-      Len : constant Natural := Test_Functions.Arg_Count(Args);
+      pragma Unreferenced (Test_Context);
+      Len : constant Test_Functions.Function_Args_Count := Test_Functions.Arg_Count(Args);
    begin
       -- Try to access at Length index (should raise error)
       declare
-         Value : constant Integer := Test_Functions.Get_Int(Args, Len);
+         Value : constant Integer := Test_Functions.Get_Int(Args, Test_Functions.Function_Args_Index(Len));
          pragma Unreferenced (Value);
       begin
          return (Kind => Test_Functions.Int_Result, Int_Value => 0);
@@ -34,7 +35,7 @@ package body Generic_Function_Tests is
    exception
       when Constraint_Error =>
          -- Expected error, return length as confirmation
-         return (Kind => Test_Functions.Int_Result, Int_Value => Len);
+         return (Kind => Test_Functions.Int_Result, Int_Value => Integer(Len));
    end Bounds_Check_Callback;
    
    -- Scalar function callback

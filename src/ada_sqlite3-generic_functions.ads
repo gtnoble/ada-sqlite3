@@ -25,27 +25,31 @@ package Ada_Sqlite3.Generic_Functions is
      (Element_Type => Ada.Streams.Stream_Element_Array);
 
    -- Argument access
-   subtype Function_Argc is Natural range Natural(Low_Level.Sqlite_Argc'First) .. Natural(Low_Level.Sqlite_Argc'Last);
-   type Function_Args (Length : Function_Argc) is private;
-   function Arg_Count (Args : Function_Args) return Natural;
-   function Get_Type (Args : Function_Args; Index : Natural) return Ada_Sqlite3.Low_Level.Datatype;
+   subtype Function_Args_Count is Low_Level.Sqlite3_Argc;
+   subtype Function_Args_Index is Low_Level.Sqlite3_Args_Index;
+   type Function_Args (First_Index : Low_Level.Sqlite3_Args_Index;
+                      Last_Index  : Low_Level.Sqlite3_Args_Index) is private;
+   
+   function Create_Args (N_Args : Low_Level.Sqlite3_Argc) return Function_Args;
+   function Arg_Count (Args : Function_Args) return Function_Args_Count;
+   function Get_Type (Args : Function_Args; Index : Function_Args_Index) return Ada_Sqlite3.Low_Level.Datatype;
 
    -- Value getters
-   function Get_Int (Args : Function_Args; Index : Natural) return Integer;
-   function Get_Int64 (Args : Function_Args; Index : Natural) return Long_Long_Integer;
-   function Get_Double (Args : Function_Args; Index : Natural) return Long_Float;
-   function Get_Text (Args : Function_Args; Index : Natural) return String;
-   function Get_Text_UTF8 (Args : Function_Args; Index : Natural) return String;
-   function Get_Text_UTF16 (Args : Function_Args; Index : Natural) return Wide_String;
-   function Get_Blob (Args : Function_Args; Index : Natural) return Ada.Streams.Stream_Element_Array;
-   function Get_Blob_Length (Args : Function_Args; Index : Natural) return Natural;
-   function Is_Null (Args : Function_Args; Index : Natural) return Boolean;
+   function Get_Int (Args : Function_Args; Index : Function_Args_Index) return Integer;
+   function Get_Int64 (Args : Function_Args; Index : Function_Args_Index) return Long_Long_Integer;
+   function Get_Double (Args : Function_Args; Index : Function_Args_Index) return Long_Float;
+   function Get_Text (Args : Function_Args; Index : Function_Args_Index) return String;
+   function Get_Text_UTF8 (Args : Function_Args; Index : Function_Args_Index) return String;
+   function Get_Text_UTF16 (Args : Function_Args; Index : Function_Args_Index) return Wide_String;
+   function Get_Blob (Args : Function_Args; Index : Function_Args_Index) return Ada.Streams.Stream_Element_Array;
+   function Get_Blob_Length (Args : Function_Args; Index : Function_Args_Index) return Natural;
+   function Is_Null (Args : Function_Args; Index : Function_Args_Index) return Boolean;
    
    -- Numeric conversion functions
-   function Value_Bytes (Args : Function_Args; Index : Natural) return Integer;
-   function Value_As_Double (Args : Function_Args; Index : Natural) return Long_Float;
-   function Value_As_Int (Args : Function_Args; Index : Natural) return Integer;
-   function Value_As_Int64 (Args : Function_Args; Index : Natural) return Long_Long_Integer;
+   function Value_Bytes (Args : Function_Args; Index : Function_Args_Index) return Integer;
+   function Value_As_Double (Args : Function_Args; Index : Function_Args_Index) return Long_Float;
+   function Value_As_Int (Args : Function_Args; Index : Function_Args_Index) return Integer;
+   function Value_As_Int64 (Args : Function_Args; Index : Function_Args_Index) return Long_Long_Integer;
 
    -- Result types
    type Result_Kind is (
@@ -126,9 +130,17 @@ package Ada_Sqlite3.Generic_Functions is
       Flags        : Function_Flags := 0);
 
 private
-   type Function_Args (Length : Function_Argc) is record
-      Data : Low_Level.Sqlite3_Value_Array (0 .. Low_Level.Sqlite_Argc(Length)  - 1);
-   end record;
+   type Function_Args (First_Index : Low_Level.Sqlite3_Args_Index;
+                      Last_Index  : Low_Level.Sqlite3_Args_Index) is record
+      Data : Low_Level.Sqlite3_Value_Array (First_Index .. Last_Index);
+   end record
+   with Type_Invariant => (First_Index > Last_Index or else First_Index = 0);
+
+   function Get_Value (Args : Function_Args; Index : Function_Args_Index) 
+      return Low_Level.Sqlite3_Value 
+      with Pre => (Args.First_Index <= Args.Last_Index and then 
+                  Index >= Args.First_Index and then 
+                  Index <= Args.Last_Index);
 
    type Function_Kind is (Scalar, Aggregate, Window);
    

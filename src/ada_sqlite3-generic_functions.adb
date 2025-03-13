@@ -9,8 +9,6 @@ package body Ada_Sqlite3.Generic_Functions is
    package CS renames Interfaces.C.Strings;
    package LL renames Ada_Sqlite3.Low_Level;
 
-   subtype Sqlite_Arg_Count is C.int range 0 .. 128;
-   
    use type LL.Datatype;
    use type System.Address;
    use type C.int;
@@ -46,69 +44,72 @@ package body Ada_Sqlite3.Generic_Functions is
    end Free_Function_State;
    
    -- Argument access implementation
-   function Arg_Count (Args : Function_Args) return Natural is
+   function Create_Args (N_Args : Low_Level.Sqlite3_Argc) return Function_Args is
    begin
-      return Args.Length;
+      if N_Args = 0 then
+         -- For empty arrays, First_Index > Last_Index to satisfy constraint
+         return (First_Index => 1,
+                Last_Index => 0,
+                Data => (1 .. 0 => Low_Level.Null_Sqlite3_Value));
+      else
+         -- For non-empty arrays, First_Index must be 0 per type invariant
+         return (First_Index => 0,
+                Last_Index => Low_Level.Sqlite3_Args_Index(N_Args - 1),
+                Data => (0 .. Low_Level.Sqlite3_Args_Index(N_Args - 1) => Low_Level.Null_Sqlite3_Value));
+      end if;
+   end Create_Args;
+
+   function Arg_Count (Args : Function_Args) return Function_Args_Count is
+   begin
+      if Args.First_Index > Args.Last_Index then
+         return 0;
+      else
+         return Function_Args_Count(Args.Last_Index - Args.First_Index + 1);
+      end if;
    end Arg_Count;
 
-   function Get_Type (Args : Function_Args; Index : Natural) return Low_Level.Datatype is
+   function Get_Value (Args : Function_Args; Index : Function_Args_Index) 
+      return Low_Level.Sqlite3_Value is
    begin
-      if Index >= Args.Length then
-         raise Constraint_Error with "Index out of bounds";
-      end if;
-      return Low_Level.Sqlite3_Value_Type(Args.Data(C.size_t(Index)));
+      return Args.Data(Index);
+   end Get_Value;
+
+   function Get_Type (Args : Function_Args; Index : Function_Args_Index) return Low_Level.Datatype is
+   begin
+      return Low_Level.Sqlite3_Value_Type(Get_Value(Args, Index));
    end Get_Type;
 
    -- Value getters implementation
-   function Get_Int (Args : Function_Args; Index : Natural) return Integer is
+   function Get_Int (Args : Function_Args; Index : Function_Args_Index) return Integer is
    begin
-      if Index >= Args.Length then
-         raise Constraint_Error with "Index out of bounds";
-      end if;
-      return Integer(Low_Level.Sqlite3_Value_Int(Args.Data(C.size_t(Index))));
+      return Integer(Low_Level.Sqlite3_Value_Int(Get_Value(Args, Index)));
    end Get_Int;
    
-   function Get_Int64 (Args : Function_Args; Index : Natural) return Long_Long_Integer is
+   function Get_Int64 (Args : Function_Args; Index : Function_Args_Index) return Long_Long_Integer is
    begin
-      if Index >= Args.Length then
-         raise Constraint_Error with "Index out of bounds";
-      end if;
-      return Long_Long_Integer(Low_Level.Sqlite3_Value_Int64(Args.Data(C.size_t(Index))));
+      return Long_Long_Integer(Low_Level.Sqlite3_Value_Int64(Get_Value(Args, Index)));
    end Get_Int64;
    
-   function Get_Double (Args : Function_Args; Index : Natural) return Long_Float is
+   function Get_Double (Args : Function_Args; Index : Function_Args_Index) return Long_Float is
    begin
-      if Index >= Args.Length then
-         raise Constraint_Error with "Index out of bounds";
-      end if;
-      return Long_Float(Low_Level.Sqlite3_Value_Double(Args.Data(C.size_t(Index))));
+      return Long_Float(Low_Level.Sqlite3_Value_Double(Get_Value(Args, Index)));
    end Get_Double;
    
-   function Get_Text (Args : Function_Args; Index : Natural) return String is
+   function Get_Text (Args : Function_Args; Index : Function_Args_Index) return String is
    begin
-      if Index >= Args.Length then
-         raise Constraint_Error with "Index out of bounds";
-      end if;
-      return CS.Value(Low_Level.Sqlite3_Value_Text(Args.Data(C.size_t(Index))));
+      return CS.Value(Low_Level.Sqlite3_Value_Text(Get_Value(Args, Index)));
    end Get_Text;
    
-   function Get_Text_UTF8 (Args : Function_Args; Index : Natural) return String is
+   function Get_Text_UTF8 (Args : Function_Args; Index : Function_Args_Index) return String is
    begin
-      if Index >= Args.Length then
-         raise Constraint_Error with "Index out of bounds";
-      end if;
-      return CS.Value(Low_Level.Sqlite3_Value_Text(Args.Data(C.size_t(Index))));
+      return CS.Value(Low_Level.Sqlite3_Value_Text(Get_Value(Args, Index)));
    end Get_Text_UTF8;
    
-   function Get_Text_UTF16 (Args : Function_Args; Index : Natural) return Wide_String is
-      C_Str : System.Address;
-      Len   : Natural;
+   function Get_Text_UTF16 (Args : Function_Args; Index : Function_Args_Index) return Wide_String is
+      Value  : constant Low_Level.Sqlite3_Value := Get_Value(Args, Index);
+      C_Str : constant System.Address := Low_Level.Sqlite3_Value_Text16(Value);
+      Len   : constant Natural := Natural(Low_Level.Sqlite3_Value_Bytes16(Value)) / 2;
    begin
-      if Index >= Args.Length then
-         raise Constraint_Error with "Index out of bounds";
-      end if;
-      C_Str := Low_Level.Sqlite3_Value_Text16(Args.Data(C.size_t(Index)));
-      Len := Natural(Low_Level.Sqlite3_Value_Bytes16(Args.Data(C.size_t(Index)))) / 2;
       declare
          Result : Wide_String(1..Len);
          for Result'Address use C_Str;
@@ -117,17 +118,13 @@ package body Ada_Sqlite3.Generic_Functions is
       end;
    end Get_Text_UTF16;
    
-   function Get_Blob (Args : Function_Args; Index : Natural)
+   function Get_Blob (Args : Function_Args; Index : Function_Args_Index)
       return Ada.Streams.Stream_Element_Array 
    is
-      Bytes : System.Address;
-      Size  : Natural;
+      Value : constant Low_Level.Sqlite3_Value := Get_Value(Args, Index);
+      Bytes : constant System.Address := Low_Level.Sqlite3_Value_Blob(Value);
+      Size  : constant Natural := Natural(Low_Level.Sqlite3_Value_Bytes(Value));
    begin
-      if Index >= Args.Length then
-         raise Constraint_Error with "Index out of bounds";
-      end if;
-      Bytes := Low_Level.Sqlite3_Value_Blob(Args.Data(C.size_t(Index)));
-      Size := Get_Blob_Length(Args, Index);
       declare
          Result : Ada.Streams.Stream_Element_Array(1..Ada.Streams.Stream_Element_Offset(Size));
          for Result'Address use Bytes;
@@ -136,53 +133,36 @@ package body Ada_Sqlite3.Generic_Functions is
       end;
    end Get_Blob;
    
-   function Get_Blob_Length (Args : Function_Args; Index : Natural) return Natural is
+   function Get_Blob_Length (Args : Function_Args; Index : Function_Args_Index) return Natural is
+      Value : constant Low_Level.Sqlite3_Value := Get_Value(Args, Index);
    begin
-      if Index >= Args.Length then
-         raise Constraint_Error with "Index out of bounds";
-      end if;
-      return Natural(Low_Level.Sqlite3_Value_Bytes(Args.Data(C.size_t(Index))));
+      return Natural(Low_Level.Sqlite3_Value_Bytes(Value));
    end Get_Blob_Length;
    
-   function Is_Null (Args : Function_Args; Index : Natural) return Boolean is
+   function Is_Null (Args : Function_Args; Index : Function_Args_Index) return Boolean is
    begin
-      if Index >= Args.Length then
-         raise Constraint_Error with "Index out of bounds";
-      end if;
       return Get_Type(Args, Index) = Low_Level.SQLITE_NULL;
    end Is_Null;
    
    -- Numeric conversion functions
-   function Value_Bytes (Args : Function_Args; Index : Natural) return Integer is
+   function Value_Bytes (Args : Function_Args; Index : Function_Args_Index) return Integer is
    begin
-      if Index >= Args.Length then
-         raise Constraint_Error with "Index out of bounds";
-      end if;
-      return Integer(Low_Level.Sqlite3_Value_Bytes(Args.Data(C.size_t(Index))));
+      return Integer(Low_Level.Sqlite3_Value_Bytes(Get_Value(Args, Index)));
    end Value_Bytes;
    
-   function Value_As_Double (Args : Function_Args; Index : Natural) return Long_Float is
+   function Value_As_Double (Args : Function_Args; Index : Function_Args_Index) return Long_Float is
    begin
-      if Index >= Args.Length then
-         raise Constraint_Error with "Index out of bounds";
-      end if;
-      return Long_Float(Low_Level.Sqlite3_Value_Double(Args.Data(C.size_t(Index))));
+      return Long_Float(Low_Level.Sqlite3_Value_Double(Get_Value(Args, Index)));
    end Value_As_Double;
    
-   function Value_As_Int (Args : Function_Args; Index : Natural) return Integer is
+   function Value_As_Int (Args : Function_Args; Index : Function_Args_Index) return Integer is
    begin
-      if Index >= Args.Length then
-         raise Constraint_Error with "Index out of bounds";
-      end if;
-      return Integer(Low_Level.Sqlite3_Value_Int(Args.Data(C.size_t(Index))));
+      return Integer(Low_Level.Sqlite3_Value_Int(Get_Value(Args, Index)));
    end Value_As_Int;
    
-   function Value_As_Int64 (Args : Function_Args; Index : Natural) return Long_Long_Integer is
+   function Value_As_Int64 (Args : Function_Args; Index : Function_Args_Index) return Long_Long_Integer is
    begin
-      if Index >= Args.Length then
-         raise Constraint_Error with "Index out of bounds";
-      end if;
-      return Long_Long_Integer(Low_Level.Sqlite3_Value_Int64(Args.Data(C.size_t(Index))));
+      return Long_Long_Integer(Low_Level.Sqlite3_Value_Int64(Get_Value(Args, Index)));
    end Value_As_Int64;
    
    -- Helper procedures to set results based on Result_Type
@@ -257,12 +237,12 @@ package body Ada_Sqlite3.Generic_Functions is
    -- Function wrapper implementations
    procedure Scalar_Callback_Implementation
      (Context : Low_Level.Sqlite3_Context;
-      Argc    : Sqlite_Arg_Count;
+      Argc    : Low_Level.Sqlite3_Argc;
       Args    : Function_Args);
    
    procedure Scalar_Callback_Implementation
      (Context : Low_Level.Sqlite3_Context;
-      Argc    : Sqlite_Arg_Count;
+      Argc    : Low_Level.Sqlite3_Argc;
       Args    : Function_Args)
    is
       User_Data : constant System.Address := Low_Level.Sqlite3_User_Data(Context);
@@ -275,35 +255,32 @@ package body Ada_Sqlite3.Generic_Functions is
    
    procedure Scalar_Callback_Wrapper
      (Context : Low_Level.Sqlite3_Context;
-      Argc    : C.int;
+      Argc    : Low_Level.Sqlite3_Argc;
       Argv    : access Low_Level.Sqlite3_Value_Array) with
       Convention => C;
    
    procedure Scalar_Callback_Wrapper
      (Context : Low_Level.Sqlite3_Context;
-      Argc    : C.int;
+      Argc    : Low_Level.Sqlite3_Argc;
       Argv    : access Low_Level.Sqlite3_Value_Array)
    is
-      Converted_Args : Function_Args (Length => Function_Argc(Argc)) := 
-         (Length => Function_Argc(Argc),
-          Data => (Low_Level.Sqlite_Args_Index'First .. Low_Level.Sqlite_Args_Index'First + Low_Level.Sqlite_Args_Index(Natural(Argc)) - 1 => Low_Level.Null_Sqlite3_Value));
+      Converted_Args : Function_Args := Create_Args(Argc);
    begin
       -- Copy the argument values if any exist
       if Argc > 0 then
          Converted_Args.Data(0 .. C.size_t(Argc - 1)) := Argv.all(0 .. C.size_t(Argc - 1));
       end if;
-      -- Convert C.int to Sqlite_Arg_Count, which will raise Constraint_Error if out of range
-      Scalar_Callback_Implementation(Context, Sqlite_Arg_Count(Argc), Converted_Args);
+      Scalar_Callback_Implementation(Context, Argc, Converted_Args);
    end Scalar_Callback_Wrapper;
 
    procedure Aggregate_Step_Implementation
      (Context : Low_Level.Sqlite3_Context;
-      Argc    : Sqlite_Arg_Count;
+      Argc    : Low_Level.Sqlite3_Argc;
       Args    : Function_Args);
 
    procedure Aggregate_Step_Implementation
      (Context : Low_Level.Sqlite3_Context;
-      Argc    : Sqlite_Arg_Count;
+      Argc    : Low_Level.Sqlite3_Argc;
       Args    : Function_Args)
    is
       User_Data : constant System.Address := Low_Level.Sqlite3_User_Data(Context);
@@ -316,25 +293,22 @@ package body Ada_Sqlite3.Generic_Functions is
    
    procedure Aggregate_Step_Wrapper
      (Context : Low_Level.Sqlite3_Context;
-      Argc    : C.int;
+      Argc    : Low_Level.Sqlite3_Argc;
       Argv    : access Low_Level.Sqlite3_Value_Array) with
       Convention => C;
    
    procedure Aggregate_Step_Wrapper
      (Context : Low_Level.Sqlite3_Context;
-      Argc    : C.int;
+      Argc    : Low_Level.Sqlite3_Argc;
       Argv    : access Low_Level.Sqlite3_Value_Array)
    is
-      Converted_Args : Function_Args (Length => Function_Argc(Argc)) := 
-         (Length => Function_Argc(Argc),
-          Data => (Low_Level.Sqlite_Args_Index'First .. Low_Level.Sqlite_Args_Index'First + Low_Level.Sqlite_Args_Index(Natural(Argc)) - 1 => Low_Level.Null_Sqlite3_Value));
+      Converted_Args : Function_Args := Create_Args(Argc);
    begin
       -- Copy the argument values if any exist
       if Argc > 0 then
          Converted_Args.Data(0 .. C.size_t(Argc - 1)) := Argv.all(0 .. C.size_t(Argc - 1));
       end if;
-      -- Convert C.int to Sqlite_Arg_Count, which will raise Constraint_Error if out of range
-      Aggregate_Step_Implementation(Context, Sqlite_Arg_Count(Argc), Converted_Args);
+      Aggregate_Step_Implementation(Context, Argc, Converted_Args);
    end Aggregate_Step_Wrapper;
    
    procedure Aggregate_Final_Wrapper
@@ -358,12 +332,12 @@ package body Ada_Sqlite3.Generic_Functions is
       
    procedure Window_Inverse_Implementation
      (Context : Low_Level.Sqlite3_Context;
-      Argc    : Sqlite_Arg_Count;
+      Argc    : Low_Level.Sqlite3_Argc;
       Args    : Function_Args);
 
    procedure Window_Inverse_Implementation
      (Context : Low_Level.Sqlite3_Context;
-      Argc    : Sqlite_Arg_Count;
+      Argc    : Low_Level.Sqlite3_Argc;
       Args    : Function_Args)
    is
       User_Data : constant System.Address := Low_Level.Sqlite3_User_Data(Context);
@@ -374,25 +348,22 @@ package body Ada_Sqlite3.Generic_Functions is
 
    procedure Window_Inverse_Wrapper
      (Context : Low_Level.Sqlite3_Context;
-      Argc    : C.int;
+      Argc    : Low_Level.Sqlite3_Argc;
       Argv    : access Low_Level.Sqlite3_Value_Array) with
       Convention => C;
    
    procedure Window_Inverse_Wrapper
      (Context : Low_Level.Sqlite3_Context;
-      Argc    : C.int;
+      Argc    : Low_Level.Sqlite3_Argc;
       Argv    : access Low_Level.Sqlite3_Value_Array)
    is
-      Converted_Args : Function_Args (Length => Function_Argc(Argc)) := 
-         (Length => Function_Argc(Argc),
-          Data => (Low_Level.Sqlite_Args_Index'First .. Low_Level.Sqlite_Args_Index'First + Low_Level.Sqlite_Args_Index(Natural(Argc)) - 1 => Low_Level.Null_Sqlite3_Value));
+      Converted_Args : Function_Args := Create_Args(Argc);
    begin
       -- Copy the argument values if any exist
       if Argc > 0 then
          Converted_Args.Data(0 .. C.size_t(Argc - 1)) := Argv.all(0 .. C.size_t(Argc - 1));
       end if;
-      -- Convert C.int to Sqlite_Arg_Count, which will raise Constraint_Error if out of range
-      Window_Inverse_Implementation(Context, Sqlite_Arg_Count(Argc), Converted_Args);
+      Window_Inverse_Implementation(Context, Argc, Converted_Args);
    end Window_Inverse_Wrapper;
       
    procedure Window_Value_Wrapper
