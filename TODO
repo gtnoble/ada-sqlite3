@@ -1,4 +1,3 @@
 Add user defined function functionality (if it does not exist yet)
-Fix setup_test_db to return the limited db type properly
-Fix segfault due to SQLITE_TRANSIENT destructor type
-  Perhaps pass an ada-implemented destructor function pointer
+Debug function tests
+Make sure Sqlite value array type has a range of size_t

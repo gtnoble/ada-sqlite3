@@ -268,7 +268,9 @@ package body Ada_Sqlite3.Generic_Functions is
    begin
       -- Copy the argument values if any exist
       if Argc > 0 then
-         Converted_Args.Data(0 .. C.size_t(Argc - 1)) := Argv.all(0 .. C.size_t(Argc - 1));
+         for I in 0 .. C.size_t(Argc - 1) loop
+            Converted_Args.Data(I) := Argv.all(Argv.all'First + I);
+         end loop;
       end if;
       Scalar_Callback_Implementation(Context, Argc, Converted_Args);
    end Scalar_Callback_Wrapper;
@@ -306,7 +308,9 @@ package body Ada_Sqlite3.Generic_Functions is
    begin
       -- Copy the argument values if any exist
       if Argc > 0 then
-         Converted_Args.Data(0 .. C.size_t(Argc - 1)) := Argv.all(0 .. C.size_t(Argc - 1));
+         for I in 0 .. C.size_t(Argc - 1) loop
+            Converted_Args.Data(I) := Argv.all(Argv.all'First + I);
+         end loop;
       end if;
       Aggregate_Step_Implementation(Context, Argc, Converted_Args);
    end Aggregate_Step_Wrapper;
@@ -361,7 +365,9 @@ package body Ada_Sqlite3.Generic_Functions is
    begin
       -- Copy the argument values if any exist
       if Argc > 0 then
-         Converted_Args.Data(0 .. C.size_t(Argc - 1)) := Argv.all(0 .. C.size_t(Argc - 1));
+         for I in 0 .. C.size_t(Argc - 1) loop
+            Converted_Args.Data(I) := Argv.all(Argv.all'First + I);
+         end loop;
       end if;
       Window_Inverse_Implementation(Context, Argc, Converted_Args);
    end Window_Inverse_Wrapper;
