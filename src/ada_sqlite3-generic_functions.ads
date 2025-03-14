@@ -4,6 +4,7 @@ with Ada_Sqlite3.Low_Level;
 with Interfaces.C;
 use type Ada.Streams.Stream_Element_Array;  -- Make equality operator visible
 use type Interfaces.C.size_t;
+use type Interfaces.C.int;
 
 generic
    type Context_Type (<>) is private;
@@ -136,9 +137,7 @@ private
    end record;
 
    function Get_Value (Args : Function_Args; Index : Function_Args_Index) 
-      return Low_Level.Sqlite3_Value 
-      with Pre => (Args.First_Index <= Args.Last_Index and then 
-                  Index + Args.First_Index <= Args.Last_Index);
+      return Low_Level.Sqlite3_Value;
 
    type Function_Kind is (Scalar, Aggregate, Window);
    

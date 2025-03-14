@@ -11,7 +11,6 @@ package body Ada_Sqlite3.Generic_Functions is
 
    use type LL.Datatype;
    use type System.Address;
-   use type C.int;
    
    -- Callback type conversions
    function To_Sqlite3_Func_Callback is new Ada.Unchecked_Conversion(
@@ -71,6 +70,19 @@ package body Ada_Sqlite3.Generic_Functions is
    function Get_Value (Args : Function_Args; Index : Function_Args_Index) 
       return Low_Level.Sqlite3_Value is
    begin
+      if Args.First_Index > Args.Last_Index then
+         raise Constraint_Error with
+            "No arguments available: The function was called with 0 arguments";
+      end if;
+      
+      if Index >= Args.Data'Length then
+         raise Constraint_Error with
+            "Invalid argument index:" & Function_Args_Index'Image(Index) & 
+            ": The function was called with" & Function_Args_Count'Image(Function_Args_Count(Args.Data'Length)) &
+            " arguments, valid indices are 0 .." & 
+            Function_Args_Index'Image(Args.Data'Length - 1);
+      end if;
+
       return Args.Data(Args.Data'First + Index);
    end Get_Value;
 
@@ -237,12 +249,10 @@ package body Ada_Sqlite3.Generic_Functions is
    -- Function wrapper implementations
    procedure Scalar_Callback_Implementation
      (Context : Low_Level.Sqlite3_Context;
-      Argc    : Low_Level.Sqlite3_Argc;
       Args    : Function_Args);
    
    procedure Scalar_Callback_Implementation
      (Context : Low_Level.Sqlite3_Context;
-      Argc    : Low_Level.Sqlite3_Argc;
       Args    : Function_Args)
    is
       User_Data : constant System.Address := Low_Level.Sqlite3_User_Data(Context);
@@ -267,17 +277,15 @@ package body Ada_Sqlite3.Generic_Functions is
       Converted_Args : Function_Args(Argv.all'First, Argv.all'First + C.size_t(Argc) - 1);
    begin
       Converted_Args.Data := Argv.all(Argv.all'First .. Argv.all'First + C.size_t(Argc) - 1);
-      Scalar_Callback_Implementation(Context, Argc, Converted_Args);
+      Scalar_Callback_Implementation(Context, Converted_Args);
    end Scalar_Callback_Wrapper;
 
    procedure Aggregate_Step_Implementation
      (Context : Low_Level.Sqlite3_Context;
-      Argc    : Low_Level.Sqlite3_Argc;
       Args    : Function_Args);
 
    procedure Aggregate_Step_Implementation
      (Context : Low_Level.Sqlite3_Context;
-      Argc    : Low_Level.Sqlite3_Argc;
       Args    : Function_Args)
    is
       User_Data : constant System.Address := Low_Level.Sqlite3_User_Data(Context);
@@ -309,7 +317,7 @@ package body Ada_Sqlite3.Generic_Functions is
       Converted_Args : Function_Args(Argv.all'First, Argv.all'First + C.size_t(Argc) - 1);
    begin
       Converted_Args.Data := Argv.all(Argv.all'First .. Argv.all'First + C.size_t(Argc) - 1);
-      Aggregate_Step_Implementation(Context, Argc, Converted_Args);
+      Aggregate_Step_Implementation(Context, Converted_Args);
    end Aggregate_Step_Wrapper;
    
    procedure Aggregate_Final_Wrapper
@@ -340,12 +348,10 @@ package body Ada_Sqlite3.Generic_Functions is
       
    procedure Window_Inverse_Implementation
      (Context : Low_Level.Sqlite3_Context;
-      Argc    : Low_Level.Sqlite3_Argc;
       Args    : Function_Args);
 
    procedure Window_Inverse_Implementation
      (Context : Low_Level.Sqlite3_Context;
-      Argc    : Low_Level.Sqlite3_Argc;
       Args    : Function_Args)
    is
       User_Data : constant System.Address := Low_Level.Sqlite3_User_Data(Context);
@@ -368,7 +374,7 @@ package body Ada_Sqlite3.Generic_Functions is
       Converted_Args : Function_Args(Argv.all'First, Argv.all'First + C.size_t(Argc) - 1);
    begin
       Converted_Args.Data := Argv.all(Argv.all'First .. Argv.all'First + C.size_t(Argc) - 1);
-      Window_Inverse_Implementation(Context, Argc, Converted_Args);
+      Window_Inverse_Implementation(Context, Converted_Args);
    end Window_Inverse_Wrapper;
       
    procedure Window_Value_Wrapper
