@@ -73,7 +73,8 @@ package body Statement_Tests is
       end loop;
       
       --  Should have 2 rows
-      Assert (Count = 2, "Should have 2 rows with int_val > 0");
+      Assert (Count = 2, 
+              "Expected 2 rows with int_val > 0 but got" & Integer'Image(Count));
       
       --  Reset the statement
       Reset (Stmt);
@@ -93,7 +94,8 @@ package body Statement_Tests is
       end loop;
       
       --  Should have 1 row
-      Assert (Count = 1, "Should have 1 row with int_val > 100");
+      Assert (Count = 1, 
+              "Expected 1 row with int_val > 100 but got" & Integer'Image(Count));
       
    end Test_Reset_Clear_Bindings;
 
@@ -118,19 +120,25 @@ package body Statement_Tests is
             
             --  Check row values
             if Count = 1 then
-               Assert (Column_Int (Stmt, 1) = 42, "First row int_val should be 42");
-               Assert (abs (Column_Double (Stmt, 2) - 3.14) < 0.001, "First row real_val should be 3.14");
-               Assert (Column_Text (Stmt, 3) = "hello", "First row text_val should be 'hello'");
+               Assert (Column_Int (Stmt, 1) = 42, 
+                       "Expected first row int_val 42 but got" & Integer'Image(Column_Int (Stmt, 1)));
+               Assert (abs (Column_Double (Stmt, 2) - 3.14) < 0.001, 
+                       "Expected first row real_val 3.14 but got" & Float'Image(Float(Column_Double (Stmt, 2))));
+               Assert (Column_Text (Stmt, 3) = "hello", 
+                       "Expected first row text_val 'hello' but got '" & Column_Text (Stmt, 3) & "'");
             elsif Count = 2 then
-               Assert (Column_Int (Stmt, 1) = 123, "Second row int_val should be 123");
-               Assert (abs (Column_Double (Stmt, 2) - 2.71) < 0.001, "Second row real_val should be 2.71");
-               Assert (Column_Text (Stmt, 3) = "world", "Second row text_val should be 'world'");
+               Assert (Column_Int (Stmt, 1) = 123, 
+                       "Expected second row int_val 123 but got" & Integer'Image(Column_Int (Stmt, 1)));
+               Assert (abs (Column_Double (Stmt, 2) - 2.71) < 0.001, 
+                       "Expected second row real_val 2.71 but got" & Float'Image(Float(Column_Double (Stmt, 2))));
+               Assert (Column_Text (Stmt, 3) = "world", 
+                       "Expected second row text_val 'world' but got '" & Column_Text (Stmt, 3) & "'");
             end if;
          end if;
       end loop;
       
       --  Should have 2 rows
-      Assert (Count = 2, "Should have 2 rows");
+      Assert (Count = 2, "Expected 2 rows but got" & Integer'Image(Count));
       
       --  Clean up
       
@@ -158,11 +166,11 @@ package body Statement_Tests is
       Result := Step (Stmt2);
       
       --  Should have a row
-      Assert (Result = ROW, "Should have a row with int_val = 999");
+      Assert (Result = ROW, "Expected ROW but got " & Result_Code'Image(Result) & " for row with int_val = 999");
       
       --  Check NULL values
-      Assert (Column_Is_Null (Stmt2, 3), "text_val should be NULL");
-      Assert (Column_Is_Null (Stmt2, 4), "null_val should be NULL");
+      Assert (Column_Is_Null (Stmt2, 3), "Expected text_val to be NULL but it was not");
+      Assert (Column_Is_Null (Stmt2, 4), "Expected null_val to be NULL but it was not");
       
       --  Clean up
       
@@ -188,8 +196,9 @@ package body Statement_Tests is
       Result := Step (Stmt2);
       
       --  Should have a row
-      Assert (Result = ROW, "Should have a row with int_val = 12345");
-      Assert (Column_Int (Stmt2, 0) = 12345, "int_val should be 12345");
+      Assert (Result = ROW, "Expected ROW but got " & Result_Code'Image(Result) & " for row with int_val = 12345");
+      Assert (Column_Int (Stmt2, 0) = 12345, 
+              "Expected int_val 12345 but got" & Integer'Image(Column_Int (Stmt2, 0)));
       
       --  Clean up
       
@@ -217,9 +226,10 @@ package body Statement_Tests is
          Bind_Int64 (Stmt2, 1, Big_Value);
          Result := Step (Stmt2);
       
-         --  Should have a row
-         Assert (Result = ROW, "Should have a row with int_val = Big_Value");
-         Assert (Column_Int64 (Stmt2, 0) = Big_Value, "int_val should be Big_Value");
+      --  Should have a row
+      Assert (Result = ROW, "Expected ROW but got " & Result_Code'Image(Result) & " for row with int_val = " & Big_Value'Image);
+         Assert (Column_Int64 (Stmt2, 0) = Big_Value, 
+                 "Expected int_val" & Big_Value'Image & " but got" & Long_Integer'Image(Column_Int64 (Stmt2, 0)));
       
          --  Clean up
       
@@ -247,9 +257,10 @@ package body Statement_Tests is
          Bind_Double (Stmt2, 1, Pi);
          Result := Step (Stmt2);
       
-         --  Should have a row
-         Assert (Result = ROW, "Should have a row with real_val = Pi");
-         Assert (abs (Column_Double (Stmt2, 0) - Pi) < 0.0001, "real_val should be Pi");
+      --  Should have a row
+      Assert (Result = ROW, "Expected ROW but got " & Result_Code'Image(Result) & " for row with real_val = " & Pi'Image);
+         Assert (abs (Column_Double (Stmt2, 0) - Pi) < 0.0001, 
+                 "Expected real_val" & Pi'Image & " but got" & Float'Image(Float(Column_Double (Stmt2, 0))));
       
          --  Clean up
       
@@ -271,9 +282,10 @@ package body Statement_Tests is
          Bind_Text (Stmt2, 1, Text_Value);
          Result := Step (Stmt2);
       
-         --  Should have a row
-         Assert (Result = ROW, "Should have a row with text_val = Text_Value");
-         Assert (Column_Text (Stmt2, 0) = Text_Value, "text_val should be Text_Value");
+      --  Should have a row
+      Assert (Result = ROW, "Expected ROW but got " & Result_Code'Image(Result) & " for row with text_val = '" & Text_Value & "'");
+         Assert (Column_Text (Stmt2, 0) = Text_Value, 
+                 "Expected text_val '" & Text_Value & "' but got '" & Column_Text (Stmt2, 0) & "'");
       
       end Test_Bind_Text;
 
@@ -298,8 +310,9 @@ package body Statement_Tests is
       Result := Step (Stmt);
       
       --  Should have a row
-      Assert (Result = ROW, "Should have a row with int_val = 42");
-      Assert (Column_Int (Stmt, 1) = 42, "int_val should be 42");
+      Assert (Result = ROW, "Expected ROW but got " & Result_Code'Image(Result) & " for row with int_val = 42");
+      Assert (Column_Int (Stmt, 1) = 42, 
+              "Expected int_val 42 but got" & Integer'Image(Column_Int (Stmt, 1)));
       
       --  Clean up
       
@@ -314,10 +327,12 @@ procedure Test_Column_Count (T : in out Test) is
 begin
    
    --  Check column count
-   Assert (Column_Count (Stmt1) = 5, "Should have 5 columns");
+   Assert (Column_Count (Stmt1) = 5, 
+           "Expected 5 columns but got" & Integer'Image(Column_Count (Stmt1)));
    
    --  Check column count
-   Assert (Column_Count (Stmt2) = 2, "Should have 2 columns");
+   Assert (Column_Count (Stmt2) = 2, 
+           "Expected 2 columns but got" & Integer'Image(Column_Count (Stmt2)));
    
 end Test_Column_Count;
 
@@ -331,11 +346,16 @@ begin
    --  Prepare a statement
    
    --  Check column names
-   Assert (Column_Name (Stmt, 0) = "id", "Column 0 should be 'id'");
-   Assert (Column_Name (Stmt, 1) = "int_val", "Column 1 should be 'int_val'");
-   Assert (Column_Name (Stmt, 2) = "real_val", "Column 2 should be 'real_val'");
-   Assert (Column_Name (Stmt, 3) = "text_val", "Column 3 should be 'text_val'");
-   Assert (Column_Name (Stmt, 4) = "null_val", "Column 4 should be 'null_val'");
+   Assert (Column_Name (Stmt, 0) = "id", 
+           "Expected column 0 name 'id' but got '" & Column_Name (Stmt, 0) & "'");
+   Assert (Column_Name (Stmt, 1) = "int_val", 
+           "Expected column 1 name 'int_val' but got '" & Column_Name (Stmt, 1) & "'");
+   Assert (Column_Name (Stmt, 2) = "real_val", 
+           "Expected column 2 name 'real_val' but got '" & Column_Name (Stmt, 2) & "'");
+   Assert (Column_Name (Stmt, 3) = "text_val", 
+           "Expected column 3 name 'text_val' but got '" & Column_Name (Stmt, 3) & "'");
+   Assert (Column_Name (Stmt, 4) = "null_val", 
+           "Expected column 4 name 'null_val' but got '" & Column_Name (Stmt, 4) & "'");
    
 end Test_Column_Name;
 
@@ -351,14 +371,19 @@ begin
    
    --  Execute
    Result := Step (Stmt);
-   Assert (Result = ROW, "Should have a row");
+   Assert (Result = ROW, "Expected ROW but got " & Result_Code'Image(Result));
    
    --  Check column types
-   Assert (Get_Column_Type (Stmt, 0) = Integer_Type, "Column 0 should be Integer_Type");
-   Assert (Get_Column_Type (Stmt, 1) = Integer_Type, "Column 1 should be Integer_Type");
-   Assert (Get_Column_Type (Stmt, 2) = Float_Type, "Column 2 should be Float_Type");
-   Assert (Get_Column_Type (Stmt, 3) = Text_Type, "Column 3 should be Text_Type");
-   Assert (Get_Column_Type (Stmt, 4) = Null_Type, "Column 4 should be Null_Type");
+   Assert (Get_Column_Type (Stmt, 0) = Integer_Type, 
+           "Expected column 0 type Integer_Type but got " & Column_Type'Image(Get_Column_Type (Stmt, 0)));
+   Assert (Get_Column_Type (Stmt, 1) = Integer_Type, 
+           "Expected column 1 type Integer_Type but got " & Column_Type'Image(Get_Column_Type (Stmt, 1)));
+   Assert (Get_Column_Type (Stmt, 2) = Float_Type, 
+           "Expected column 2 type Float_Type but got " & Column_Type'Image(Get_Column_Type (Stmt, 2)));
+   Assert (Get_Column_Type (Stmt, 3) = Text_Type, 
+           "Expected column 3 type Text_Type but got " & Column_Type'Image(Get_Column_Type (Stmt, 3)));
+   Assert (Get_Column_Type (Stmt, 4) = Null_Type, 
+           "Expected column 4 type Null_Type but got " & Column_Type'Image(Get_Column_Type (Stmt, 4)));
    
    --  Clean up
    
@@ -377,10 +402,11 @@ begin
    
    --  Execute
    Result := Step (Stmt);
-   Assert (Result = ROW, "Should have a row");
+   Assert (Result = ROW, "Expected ROW but got " & Result_Code'Image(Result));
    
    --  Check column value
-   Assert (Column_Int (Stmt, 0) = 42, "int_val should be 42");
+   Assert (Column_Int (Stmt, 0) = 42, 
+           "Expected int_val 42 but got" & Integer'Image(Column_Int (Stmt, 0)));
    
 end Test_Column_Int;
 
@@ -401,7 +427,8 @@ begin
    Assert (Result = ROW, "Should have a row");
    
    --  Check column value
-   Assert (Column_Int64 (Stmt, 0) = Big_Value, "int_val should be Big_Value");
+   Assert (Column_Int64 (Stmt, 0) = Big_Value, 
+           "Expected int_val" & Big_Value'Image & " but got" & Long_Integer'Image(Column_Int64 (Stmt, 0)));
    
    --  Clean up
    
@@ -423,7 +450,8 @@ begin
    Assert (Result = ROW, "Should have a row");
    
    --  Check column value
-   Assert (abs (Column_Double (Stmt, 0) - 3.14) < 0.01, "real_val should be approximately 3.14");
+   Assert (abs (Column_Double (Stmt, 0) - 3.14) < 0.01, 
+           "Expected real_val approximately 3.14 but got" & Float'Image(Float(Column_Double (Stmt, 0))));
    
    --  Clean up
    
@@ -445,7 +473,8 @@ begin
    Assert (Result = ROW, "Should have a row");
    
    --  Check column value
-   Assert (Column_Text (Stmt, 0) = "hello", "text_val should be 'hello'");
+   Assert (Column_Text (Stmt, 0) = "hello", 
+           "Expected text_val 'hello' but got '" & Column_Text (Stmt, 0) & "'");
    
 end Test_Column_Text;
 
@@ -464,7 +493,7 @@ begin
    Assert (Result = ROW, "Should have a row");
    
    --  Check column value
-   Assert (Column_Is_Null (Stmt, 0), "null_val should be NULL");
+   Assert (Column_Is_Null (Stmt, 0), "Expected null_val to be NULL but it was not");
    
 end Test_Column_Is_Null;
 
@@ -489,7 +518,8 @@ end Test_Column_Is_Null;
             Exception_Raised := True;
       end;
 
-      Assert (Exception_Raised, "Exception should be raised for invalid SQL");
+      Assert (Exception_Raised, 
+              "Expected SQLite_Error exception for invalid SQL but no exception was raised");
       
    end Test_Invalid_Statement;
 

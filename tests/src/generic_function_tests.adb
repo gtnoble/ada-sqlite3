@@ -3,10 +3,11 @@ with AUnit.Assertions;
 with AUnit.Test_Caller;
 with Ada_Sqlite3;
 with Ada_Sqlite3.Generic_Functions;
+with System.Assertions;
 
 package body Generic_Function_Tests is
    use AUnit.Assertions;
-   use Ada_Sqlite3;  -- Add this to make database operations visible
+   use Ada_Sqlite3;
 
    package Test_Functions is new Ada_Sqlite3.Generic_Functions
      (Context_Type => Ada.Strings.Wide_Unbounded.Unbounded_Wide_String);
@@ -14,8 +15,38 @@ package body Generic_Function_Tests is
    use Test_Functions.Wide_String_Holders;
 
    -- Test state
-   Result  : Unbounded_Wide_String := Null_Unbounded_Wide_String;
-   Context : Unbounded_Wide_String := Null_Unbounded_Wide_String;
+   Result    : Unbounded_Wide_String := Null_Unbounded_Wide_String;
+   Context   : Unbounded_Wide_String := Null_Unbounded_Wide_String;
+   Frame_Sum : Integer := 0;  -- For window function state management
+   
+   -- Helper function to convert Wide_String to String for assertion messages
+   function WS_Image (S : Wide_String) return String is
+      Result : String (1 .. S'Length * 6) := (others => ' ');  -- Max 6 chars per Unicode char
+      Last   : Natural := 0;
+   begin
+      for I in S'Range loop
+         if Wide_Character'Pos (S(I)) < 128 then
+            -- ASCII character
+            Last := Last + 1;
+            Result(Last) := Character'Val(Wide_Character'Pos(S(I)));
+         else
+            -- Unicode character - use hex escape
+            declare
+               Hex : constant String := Wide_Character'Pos(S(I))'Img;
+            begin
+               Last := Last + 1;
+               Result(Last) := 'U';
+               Last := Last + 1;
+               Result(Last) := '+';
+               for J in 3 .. Hex'Length loop
+                  Last := Last + 1;
+                  Result(Last) := Hex(J);
+               end loop;
+            end;
+         end if;
+      end loop;
+      return Result(1 .. Last);
+   end WS_Image;
    
    -- Callback for bounds checking tests
    function Bounds_Check_Callback 
@@ -46,7 +77,7 @@ package body Generic_Function_Tests is
    is
       Value : constant Integer := Test_Functions.Get_Int(Args, 0);
    begin
-      Result  := To_Unbounded_Wide_String(Wide_String'("Got " & Integer'Wide_Image(Value)));
+      Result  := To_Unbounded_Wide_String(Wide_String'("Got" & Integer'Wide_Image(Value)));
       Context := Test_Context;
       return (Kind => Test_Functions.Int_Result, Int_Value => Value);
    end Int_Callback;
@@ -71,11 +102,22 @@ package body Generic_Function_Tests is
    is
       Value : constant Integer := Test_Functions.Get_Int(Args, 0);
    begin
-      Result  := Result & To_Unbounded_Wide_String(" + " & Integer'Wide_Image(Value));
+      Result  := Result & To_Unbounded_Wide_String(" +" & Integer'Wide_Image(Value));
       Context := Test_Context;
       return (Kind => Test_Functions.Int_Result, Int_Value => Value);
    end Aggregate_Step;
-   
+
+   function Window_Step
+     (Args : Test_Functions.Function_Args;
+      Test_Context : Unbounded_Wide_String) return Test_Functions.Result_Type
+   is
+      Value : constant Integer := Test_Functions.Get_Int(Args, 0);
+   begin
+      Context := Test_Context;
+      Frame_Sum := Frame_Sum + Value;
+      return (Kind => Test_Functions.Int_Result, Int_Value => Value);
+   end Window_Step;
+
    function Aggregate_Final
      (Test_Context : Unbounded_Wide_String) return Test_Functions.Result_Type
    is
@@ -84,6 +126,14 @@ package body Generic_Function_Tests is
       Context := Test_Context;
       return (Kind => Test_Functions.Int_Result, Int_Value => 42);
    end Aggregate_Final;
+
+   function Window_Final
+     (Test_Context : Unbounded_Wide_String) return Test_Functions.Result_Type
+   is
+   begin
+      Context := Test_Context;
+      return (Kind => Test_Functions.Int_Result, Int_Value => Frame_Sum);
+   end Window_Final;
 
    -- Tests
    procedure Test_Scalar_Function (T : in out Test) is
@@ -102,13 +152,14 @@ package body Generic_Function_Tests is
       
       declare
          Stmt : Statement := Prepare(DB, "SELECT test_func(42)");
+         Result : constant Result_Code := Step(Stmt);
       begin
-         Assert(Step(Stmt) = ROW, "Expected a row result");
+         Assert(Result = ROW, "Expected ROW but got " & Result_Code'Image(Result));
          Result_Value := Column_Int(Stmt, 0);
       end;
-      Assert (Result_Value = 42, "Function should return 42");
-      Assert (To_Wide_String(Result) = "Got 42",
-             "Unexpected scalar function result");
+      Assert (Result_Value = 42, "Expected result 42 but got" & Integer'Image(Result_Value));
+      Assert (To_Wide_String(Result) = "Got 42", 
+             "Expected 'Got 42' but got '" & WS_Image(To_Wide_String(Result)) & "'");
    end Test_Scalar_Function;
    
    procedure Test_Aggregate_Function (T : in out Test) is
@@ -126,28 +177,43 @@ package body Generic_Function_Tests is
          Context    => Null_Unbounded_Wide_String);
       
       Execute(DB, "CREATE TABLE test (val INTEGER)");
-      Execute(DB, "INSERT INTO test VALUES (1), (2), (3)");
+      Execute(DB, "INSERT INTO test VALUES (1), (2), (3), (4)");
       
       declare
          Stmt : Statement := Prepare(DB, "SELECT test_agg(val) FROM test");
+         Result : constant Result_Code := Step(Stmt);
       begin
-         Assert(Step(Stmt) = ROW, "Expected a row result");
-         Assert(Column_Int(Stmt, 0) = 42, "Aggregate should return 42");
+         Assert(Result = ROW, "Expected ROW but got " & Result_Code'Image(Result));
+         Assert(Column_Int(Stmt, 0) = 42, "Expected aggregate result 42 but got" & Integer'Image(Column_Int(Stmt, 0)));
       end;
       
-      Assert (To_Wide_String(Result) = " + 1 + 2 + 3 = Sum",
-              "Unexpected aggregate function result");
+      Assert (To_Wide_String(Result) = " + 1 + 2 + 3 + 4 = Sum", 
+             "Expected ' + 1 + 2 + 3 + 4 = Sum' but got '" & WS_Image(To_Wide_String(Result)) & "'");
    end Test_Aggregate_Function;
    
-   -- Window function callbacks
-   procedure Window_Inverse
+   -- Window function state management   
+   procedure Reset_Frame is
+   begin
+      Frame_Sum := 0;
+      Result := Null_Unbounded_Wide_String;
+   end Reset_Frame;
+
+   function Window_Value 
+     (Test_Context : Unbounded_Wide_String) return Test_Functions.Result_Type
+   is
+   begin
+      Context := Test_Context;
+      return (Kind => Test_Functions.Int_Result, Int_Value => Frame_Sum);
+   end Window_Value;
+
+   procedure Window_Inverse 
      (Args : Test_Functions.Function_Args;
       Test_Context : Unbounded_Wide_String)
    is
       Value : constant Integer := Test_Functions.Get_Int(Args, 0);
    begin
-      Result  := Result & To_Unbounded_Wide_String(" - " & Integer'Wide_Image(Value));
       Context := Test_Context;
+      Frame_Sum := Frame_Sum - Value;
    end Window_Inverse;
 
    procedure Test_Window_Function (T : in out Test) is
@@ -155,29 +221,64 @@ package body Generic_Function_Tests is
       DB : Database := Open (":memory:", OPEN_READWRITE or OPEN_CREATE);
    begin
       Result := Null_Unbounded_Wide_String;
+      Frame_Sum := 0;  -- Initialize frame state
       
       Test_Functions.Create_Window
         (DB           => DB,
          Name         => "test_window",
          N_Args       => 1,
-         Step_Func    => Aggregate_Step'Access,
-         Final_Func   => Aggregate_Final'Access,
-         Value_Func   => Aggregate_Final'Access,
+         Step_Func    => Window_Step'Access,
+         Final_Func   => Window_Final'Access,
+         Value_Func   => Window_Value'Access,
          Inverse_Func => Window_Inverse'Access,
          Context      => Null_Unbounded_Wide_String);
       
       Execute(DB, "CREATE TABLE test (val INTEGER)");
-      Execute(DB, "INSERT INTO test VALUES (1), (2), (3)");
+      Execute(DB, "INSERT INTO test VALUES (1), (2), (3), (4)");
       
+      Reset_Frame;
       declare
-         Stmt : Statement := Prepare(DB, "SELECT test_window(val) OVER (ORDER BY val) FROM test");
+         Stmt : Statement := Prepare(DB,
+            "SELECT test_window(val) OVER (ORDER BY val ROWS 1 PRECEDING) FROM test ORDER BY val");
       begin
-         Assert(Step(Stmt) = ROW, "Expected a row result");
-         Assert(Column_Int(Stmt, 0) = 42, "Window function should return 42");
+         -- First row: Only value 1
+         declare
+            Result_Code1 : constant Result_Code := Step(Stmt);
+         begin
+            Assert(Result_Code1 = ROW, "Expected ROW but got " & Result_Code'Image(Result_Code1));
+            Assert(Column_Int(Stmt, 0) = 1, "Expected window function first row result 1 but got" & Integer'Image(Column_Int(Stmt, 0)));
+         end;
+
+         -- Second row: Values 1,2
+         declare
+            Result_Code2 : constant Result_Code := Step(Stmt);
+         begin
+            Assert(Result_Code2 = ROW, "Expected ROW but got " & Result_Code'Image(Result_Code2));
+            Assert(Column_Int(Stmt, 0) = 3, "Expected window function second row result 3 (sum of 1+2) but got" & Integer'Image(Column_Int(Stmt, 0)));
+         end;
+
+         -- Third row: Values 2,3
+         declare
+            Result_Code3 : constant Result_Code := Step(Stmt);
+         begin
+            Assert(Result_Code3 = ROW, "Expected ROW but got " & Result_Code'Image(Result_Code3));
+            Assert(Column_Int(Stmt, 0) = 5, "Expected window function third row result 5 (sum of 2+3) but got" & Integer'Image(Column_Int(Stmt, 0)));
+         end;
+
+         -- Fourth row: Values 3,4
+         declare
+            Result_Code4 : constant Result_Code := Step(Stmt);
+         begin
+            Assert(Result_Code4 = ROW, "Expected ROW but got " & Result_Code'Image(Result_Code4));
+            Assert(Column_Int(Stmt, 0) = 7, "Expected window function fourth row result 7 (sum of 3+4) but got" & Integer'Image(Column_Int(Stmt, 0)));
+         end;
+
+         declare
+            Final_Result : constant Result_Code := Step(Stmt);
+         begin
+            Assert(Final_Result = DONE, "Expected DONE but got " & Result_Code'Image(Final_Result));
+         end;
       end;
-      
-      Assert (To_Wide_String(Result) = " + 1 + 2 + 3 = Sum",
-              "Unexpected window function result");
    end Test_Window_Function;
    
    procedure Test_UTF16_Text (T : in out Test) is
@@ -193,17 +294,21 @@ package body Generic_Function_Tests is
          Func    => UTF16_Callback'Access,
          Context => Null_Unbounded_Wide_String);
       
-      declare
-         Wide_Text : constant Wide_String := "世界";
-         Stmt : Statement := Prepare(DB, "SELECT test_utf16(?)");
-      begin
-         Bind_Text_UTF16(Stmt, 1, Wide_Text);
-         Assert(Step(Stmt) = ROW, "Expected a row result");
-         Assert(Column_Text_UTF16(Stmt, 0) = Wide_Text,
-               "UTF16 function should return correct text");
+         declare
+            Wide_Text : constant Wide_String := "世界";
+            Stmt : Statement := Prepare(DB, "SELECT test_utf16(?)");
+            Result : Result_Code;
+         begin
+            Bind_Text_UTF16(Stmt, 1, Wide_Text);
+            Result := Step(Stmt);
+            Assert(Result = ROW, "Expected ROW but got " & Result_Code'Image(Result));
+         Assert(Column_Text_UTF16(Stmt, 0) = Wide_Text, 
+               "Expected UTF16 text '" & WS_Image(Wide_Text) & "' but got '" & 
+               WS_Image(Column_Text_UTF16(Stmt, 0)) & "'");
       end;
-      Assert (To_Wide_String(Result) = "世界",
-             "Unexpected UTF-16 text result");
+      Assert (To_Wide_String(Result) = "世界", 
+             "Expected UTF-16 text '" & WS_Image("世界") & "' but got '" & 
+             WS_Image(To_Wide_String(Result)) & "'");
    end Test_UTF16_Text;
    
    procedure Test_Context_Cleanup (T : in out Test) is
@@ -221,14 +326,15 @@ package body Generic_Function_Tests is
          Func    => Int_Callback'Access,
          Context => Test_Context);
       
-      declare
-         Stmt : Statement := Prepare(DB, "SELECT test_cleanup(1)");
-      begin
-         Assert(Step(Stmt) = ROW, "Expected a row result");
+         declare
+            Stmt : Statement := Prepare(DB, "SELECT test_cleanup(1)");
+            Result : constant Result_Code := Step(Stmt);
+         begin
+            Assert(Result = ROW, "Expected ROW but got " & Result_Code'Image(Result));
       end;
       
-      Assert (To_Wide_String(Context) = "test context",
-             "Context not properly passed to callback");
+      Assert (To_Wide_String(Context) = "test context", 
+             "Expected context 'test context' but got '" & WS_Image(To_Wide_String(Context)) & "'");
    end Test_Context_Cleanup;
    
    procedure Test_Out_Of_Bounds_Access (T : in out Test) is
@@ -243,22 +349,22 @@ package body Generic_Function_Tests is
          Context => Null_Unbounded_Wide_String);
       
       -- Test with one argument
-      declare
-         Stmt : Statement := Prepare(DB, "SELECT bounds_test(42)");
-      begin
-         Assert(Step(Stmt) = ROW, "Expected a row result");
-         Assert(Column_Int(Stmt, 0) = 1, 
-                "Function should return argument count as proof of bounds check");
-      end;
+         declare
+            Stmt : Statement := Prepare(DB, "SELECT bounds_test(42)");
+            Result : constant Result_Code := Step(Stmt);
+         begin
+            Assert(Result = ROW, "Expected ROW but got " & Result_Code'Image(Result));
+            Assert(Column_Int(Stmt, 0) = 1, "Expected argument count 1 but got" & Integer'Image(Column_Int(Stmt, 0)));
+         end;
       
       -- Test with no arguments
-      declare
-         Stmt : Statement := Prepare(DB, "SELECT bounds_test()");
-      begin
-         Assert(Step(Stmt) = ROW, "Expected a row result");
-         Assert(Column_Int(Stmt, 0) = 0, 
-                "Function should return 0 for empty args");
-      end;
+         declare
+            Stmt : Statement := Prepare(DB, "SELECT bounds_test()");
+            Result : constant Result_Code := Step(Stmt);
+         begin
+            Assert(Result = ROW, "Expected ROW but got " & Result_Code'Image(Result));
+            Assert(Column_Int(Stmt, 0) = 0, "Expected result 0 for empty args but got" & Integer'Image(Column_Int(Stmt, 0)));
+         end;
    end Test_Out_Of_Bounds_Access;
    
    procedure Test_Empty_Args (T : in out Test) is
@@ -267,7 +373,6 @@ package body Generic_Function_Tests is
    begin
       Result := Null_Unbounded_Wide_String;
       
-      -- Create a function that expects zero arguments
       Test_Functions.Create_Function
         (DB      => DB,
          Name    => "empty_args",
@@ -275,12 +380,19 @@ package body Generic_Function_Tests is
          Func    => Int_Callback'Access,
          Context => Null_Unbounded_Wide_String);
       
-      declare
-         Stmt : Statement := Prepare(DB, "SELECT empty_args()");
       begin
-         Assert(Step(Stmt) = ROW, "Expected a row result");
-         Assert(Column_Int(Stmt, 0) = 42, 
-                "Function should return default value for empty args");
+         declare
+            Stmt : Statement := Prepare(DB, "SELECT empty_args()");
+            Result : constant Result_Code := Step(Stmt);
+            pragma Unreferenced(Result);
+         begin
+            -- If we get here, the test should fail
+            Assert (False, "Expected assertion error for accessing empty args");
+         end;
+      exception
+         when System.Assertions.Assert_Failure =>
+            -- Test passes - expected assertion error
+            null;
       end;
    end Test_Empty_Args;
    
@@ -306,18 +418,19 @@ package body Generic_Function_Tests is
          Func    => Int_Callback'Access,
          Context => Null_Unbounded_Wide_String);
       
-      declare
-         Stmt : Statement := Prepare(DB, "SELECT func1(1), func2(2)");
-      begin
-         Assert(Step(Stmt) = ROW, "Expected a row result");
-         Value1 := Column_Int(Stmt, 0);
-         Value2 := Column_Int(Stmt, 1);
-      end;
+         declare
+            Stmt : Statement := Prepare(DB, "SELECT func1(1), func2(2)");
+            Result : constant Result_Code := Step(Stmt);
+         begin
+            Assert(Result = ROW, "Expected ROW but got " & Result_Code'Image(Result));
+            Value1 := Column_Int(Stmt, 0);
+            Value2 := Column_Int(Stmt, 1);
+         end;
       
-      Assert (Value1 = 1, "First function should return 1");
-      Assert (Value2 = 2, "Second function should return 2");
-      Assert (To_Wide_String(Result) = "Got 2",
-             "Callback result should show last function call");
+      Assert (Value1 = 1, "Expected first function result 1 but got" & Integer'Image(Value1));
+      Assert (Value2 = 2, "Expected second function result 2 but got" & Integer'Image(Value2));
+      Assert (To_Wide_String(Result) = "Got 2", 
+             "Expected callback result 'Got 2' but got '" & WS_Image(To_Wide_String(Result)) & "'");
    end Test_Multiple_Functions;
    
    -- Register test routines to call

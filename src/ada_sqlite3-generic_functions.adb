@@ -71,7 +71,7 @@ package body Ada_Sqlite3.Generic_Functions is
    function Get_Value (Args : Function_Args; Index : Function_Args_Index) 
       return Low_Level.Sqlite3_Value is
    begin
-      return Args.Data(Index);
+      return Args.Data(Args.Data'First + Index);
    end Get_Value;
 
    function Get_Type (Args : Function_Args; Index : Function_Args_Index) return Low_Level.Datatype is
@@ -264,14 +264,9 @@ package body Ada_Sqlite3.Generic_Functions is
       Argc    : Low_Level.Sqlite3_Argc;
       Argv    : access Low_Level.Sqlite3_Value_Array)
    is
-      Converted_Args : Function_Args := Create_Args(Argc);
+      Converted_Args : Function_Args(Argv.all'First, Argv.all'First + C.size_t(Argc) - 1);
    begin
-      -- Copy the argument values if any exist
-      if Argc > 0 then
-         for I in 0 .. C.size_t(Argc - 1) loop
-            Converted_Args.Data(I) := Argv.all(Argv.all'First + I);
-         end loop;
-      end if;
+      Converted_Args.Data := Argv.all(Argv.all'First .. Argv.all'First + C.size_t(Argc) - 1);
       Scalar_Callback_Implementation(Context, Argc, Converted_Args);
    end Scalar_Callback_Wrapper;
 
@@ -289,7 +284,14 @@ package body Ada_Sqlite3.Generic_Functions is
       State : constant Function_State_Access := Function_State_Access(Function_State_Conversions.To_Pointer(User_Data));
       Result : Result_Type;
    begin
-      Result := State.Callback.Step_Func(Args, Context_Holders.Element(State.Context));
+      case State.Callback.Kind is
+      when Aggregate =>
+         Result := State.Callback.Step_Func(Args, Context_Holders.Element(State.Context));
+      when Window =>
+         Result := State.Callback.Window_Step(Args, Context_Holders.Element(State.Context));
+      when Scalar =>
+         raise SQLite_Error with "Unexpected scalar function in aggregate step";
+   end case;
       Set_Result(Context, Result);
    end Aggregate_Step_Implementation;
    
@@ -304,14 +306,9 @@ package body Ada_Sqlite3.Generic_Functions is
       Argc    : Low_Level.Sqlite3_Argc;
       Argv    : access Low_Level.Sqlite3_Value_Array)
    is
-      Converted_Args : Function_Args := Create_Args(Argc);
+      Converted_Args : Function_Args(Argv.all'First, Argv.all'First + C.size_t(Argc) - 1);
    begin
-      -- Copy the argument values if any exist
-      if Argc > 0 then
-         for I in 0 .. C.size_t(Argc - 1) loop
-            Converted_Args.Data(I) := Argv.all(Argv.all'First + I);
-         end loop;
-      end if;
+      Converted_Args.Data := Argv.all(Argv.all'First .. Argv.all'First + C.size_t(Argc) - 1);
       Aggregate_Step_Implementation(Context, Argc, Converted_Args);
    end Aggregate_Step_Wrapper;
    
@@ -326,7 +323,14 @@ package body Ada_Sqlite3.Generic_Functions is
       State : constant Function_State_Access := Function_State_Access(Function_State_Conversions.To_Pointer(User_Data));
       Result : Result_Type;
    begin
-      Result := State.Callback.Final_Func(Context_Holders.Element(State.Context));
+      case State.Callback.Kind is
+         when Aggregate =>
+            Result := State.Callback.Final_Func(Context_Holders.Element(State.Context));
+         when Window =>
+            Result := State.Callback.Window_Final(Context_Holders.Element(State.Context));
+         when Scalar =>
+            raise SQLite_Error with "Unexpected scalar function in aggregate final";
+      end case;
       Set_Result(Context, Result);
    end Aggregate_Final_Wrapper;
    
@@ -361,14 +365,9 @@ package body Ada_Sqlite3.Generic_Functions is
       Argc    : Low_Level.Sqlite3_Argc;
       Argv    : access Low_Level.Sqlite3_Value_Array)
    is
-      Converted_Args : Function_Args := Create_Args(Argc);
+      Converted_Args : Function_Args(Argv.all'First, Argv.all'First + C.size_t(Argc) - 1);
    begin
-      -- Copy the argument values if any exist
-      if Argc > 0 then
-         for I in 0 .. C.size_t(Argc - 1) loop
-            Converted_Args.Data(I) := Argv.all(Argv.all'First + I);
-         end loop;
-      end if;
+      Converted_Args.Data := Argv.all(Argv.all'First .. Argv.all'First + C.size_t(Argc) - 1);
       Window_Inverse_Implementation(Context, Argc, Converted_Args);
    end Window_Inverse_Wrapper;
       

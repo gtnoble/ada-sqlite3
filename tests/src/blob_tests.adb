@@ -57,8 +57,11 @@ package body Blob_Tests is
       Test_Blob := Create (Test_Data);
       
       --  Check that the blob was created correctly
-      Assert (Size (Test_Blob) = Natural (Test_Data'Length), "Blob size should match data size");
-      Assert (Arrays_Equal (Data (Test_Blob), Test_Data), "Blob data should match original data");
+      Assert (Size (Test_Blob) = Natural (Test_Data'Length), 
+              "Expected blob size" & Natural'Image(Natural(Test_Data'Length)) & 
+              " but got" & Natural'Image(Size(Test_Blob)));
+      Assert (Arrays_Equal (Data (Test_Blob), Test_Data), 
+              "Expected blob data to match original data but it differed");
    end Test_Create_Blob;
 
    --  Test blob size
@@ -73,9 +76,9 @@ package body Blob_Tests is
       Large_Blob : constant Blob := Create (Large_Data);
    begin
       --  Check sizes
-      Assert (Size (Empty_Blob) = 0, "Empty blob size should be 0");
-      Assert (Size (Small_Blob) = 3, "Small blob size should be 3");
-      Assert (Size (Large_Blob) = 1000, "Large blob size should be 1000");
+      Assert (Size (Empty_Blob) = 0, "Expected empty blob size 0 but got" & Natural'Image(Size(Empty_Blob)));
+      Assert (Size (Small_Blob) = 3, "Expected small blob size 3 but got" & Natural'Image(Size(Small_Blob)));
+      Assert (Size (Large_Blob) = 1000, "Expected large blob size 1000 but got" & Natural'Image(Size(Large_Blob)));
    end Test_Blob_Size;
 
    --  Test blob data
@@ -86,11 +89,15 @@ package body Blob_Tests is
       Retrieved_Data : constant Stream_Element_Array := Data (Test_Blob);
    begin
       --  Check that the retrieved data matches the original
-      Assert (Stream_Element_Offset (Retrieved_Data'Length) = Stream_Element_Offset (Test_Data'Length), "Retrieved data length should match original");
+      Assert (Stream_Element_Offset (Retrieved_Data'Length) = Stream_Element_Offset (Test_Data'Length), 
+              "Expected retrieved data length" & Stream_Element_Offset'Image(Stream_Element_Offset(Test_Data'Length)) & 
+              " but got" & Stream_Element_Offset'Image(Stream_Element_Offset(Retrieved_Data'Length)));
       
       for I in Test_Data'Range loop
-         Assert (Retrieved_Data (I - Test_Data'First + Retrieved_Data'First) = Test_Data (I),
-                "Data element " & Stream_Element_Offset'Image (I) & " should match");
+               Assert (Retrieved_Data (I - Test_Data'First + Retrieved_Data'First) = Test_Data (I),
+                      "Expected data element" & Stream_Element_Offset'Image(I) & " to be" & 
+                      Stream_Element'Image(Test_Data(I)) & " but got" & 
+                      Stream_Element'Image(Retrieved_Data(I - Test_Data'First + Retrieved_Data'First)));
       end loop;
    end Test_Blob_Data;
 
@@ -118,8 +125,9 @@ package body Blob_Tests is
       --  Verify the blob was inserted
       declare
          Stmt2 : Statement := Prepare (DB, "SELECT data FROM test_blobs WHERE name = 'Test Blob'");
+         Result : constant Result_Code := Step(Stmt2);
       begin
-         Assert (Step (Stmt2) = ROW, "Should have a row with the inserted blob");
+         Assert (Result = ROW, "Expected ROW but got " & Result_Code'Image(Result));
       end;
       
       --  Clean up
@@ -153,16 +161,19 @@ package body Blob_Tests is
       --  Retrieve the blob
       declare
          Stmt2 : Statement := Prepare (DB, "SELECT data FROM test_blobs WHERE name = 'Test Blob'");
+         Result : constant Result_Code := Step(Stmt2);
       begin
-         Assert (Step (Stmt2) = ROW, "Should have a row with the inserted blob");
+         Assert (Result = ROW, "Expected ROW but got " & Result_Code'Image(Result) & " when retrieving inserted blob");
       
          --  Get the blob from the column
          Retrieved_Blob := Column_Blob (Stmt2, 0);
       
          --  Check that the retrieved blob matches the original
-         Assert (Size (Retrieved_Blob) = Size (Test_Blob), "Retrieved blob size should match original");
+         Assert (Size (Retrieved_Blob) = Size (Test_Blob), 
+                 "Expected retrieved blob size" & Natural'Image(Size(Test_Blob)) & 
+                 " but got" & Natural'Image(Size(Retrieved_Blob)));
          Assert (Arrays_Equal (Data (Retrieved_Blob), Data (Test_Blob)), 
-                "Retrieved blob data should match original");
+                 "Expected retrieved blob data to match original data but it differed");
       end;
       
       --  Clean up
@@ -187,15 +198,18 @@ package body Blob_Tests is
       Read_Blob (Test_Blob, Buffer, Last);
       
       --  Check that the read was successful
-      Assert (Last = Stream_Element_Offset (5), "Should have read 5 elements");
-      Assert (Arrays_Equal (Buffer (1 .. 5), Initial_Data), "Read data should match initial data");
+      Assert (Last = Stream_Element_Offset (5), 
+              "Expected to read 5 elements but read" & Stream_Element_Offset'Image(Last));
+      Assert (Arrays_Equal (Buffer (1 .. 5), Initial_Data), 
+              "Expected read data to match initial data but it differed");
       
       --  Test writing
       Write_Blob (Test_Blob, Write_Data);
       
       --  Check that the write was successful
       Assert (Size (Test_Blob) = Natural (Initial_Data'Length + Write_Data'Length), 
-             "Blob size should be sum of initial and written data");
+             "Expected blob size" & Natural'Image(Natural(Initial_Data'Length + Write_Data'Length)) &
+             " but got" & Natural'Image(Size(Test_Blob)));
       
       --  Read the entire blob
       declare
@@ -209,7 +223,9 @@ package body Blob_Tests is
          Read_Blob (Test_Blob, Full_Buffer, Full_Last);
          
          --  Check that we read the expected data
-         Assert (Full_Last = Stream_Element_Offset (Size (Test_Blob)), "Should have read the entire blob");
+         Assert (Full_Last = Stream_Element_Offset (Size (Test_Blob)), 
+                 "Expected to read" & Stream_Element_Offset'Image(Stream_Element_Offset(Size(Test_Blob))) & 
+                 " elements but read" & Stream_Element_Offset'Image(Full_Last));
          
       --  Check that the first part matches the initial data
       for I in Initial_Data'Range loop
@@ -217,7 +233,9 @@ package body Blob_Tests is
             Buffer_Index : constant Stream_Element_Offset := I - Initial_Data'First + Stream_Element_Offset (1);
          begin
             Assert (Full_Buffer (Buffer_Index) = Initial_Data (I),
-                   "First part should match initial data");
+                   "Expected first part data at index" & Stream_Element_Offset'Image(I) & 
+                   " to be" & Stream_Element'Image(Initial_Data(I)) & 
+                   " but got" & Stream_Element'Image(Full_Buffer(Buffer_Index)));
          end;
       end loop;
          
@@ -228,7 +246,9 @@ package body Blob_Tests is
                   I - Write_Data'First + Stream_Element_Offset (Initial_Data'Length) + Stream_Element_Offset (1);
             begin
                Assert (Full_Buffer (Buffer_Index) = Write_Data (I),
-                      "Second part should match written data");
+                      "Expected second part data at index" & Stream_Element_Offset'Image(I) & 
+                      " to be" & Stream_Element'Image(Write_Data(I)) & 
+                      " but got" & Stream_Element'Image(Full_Buffer(Buffer_Index)));
             end;
          end loop;
       end;
@@ -259,14 +279,16 @@ package body Blob_Tests is
       --  Retrieve the empty blob
       declare
          Stmt2 : Statement := Prepare (DB, "SELECT data FROM test_blobs WHERE name = 'Empty Blob'");
+         Result : constant Result_Code := Step(Stmt2);
       begin
-         Assert (Step (Stmt2) = ROW, "Should have a row with the empty blob");
+         Assert (Result = ROW, "Expected ROW but got " & Result_Code'Image(Result) & " when retrieving empty blob");
       
          --  Get the blob from the column
          Retrieved_Blob := Column_Blob (Stmt2, 0);
       
          --  Check that the retrieved blob is empty
-         Assert (Size (Retrieved_Blob) = 0, "Retrieved empty blob size should be 0");
+         Assert (Size (Retrieved_Blob) = 0, 
+                 "Expected retrieved empty blob size 0 but got" & Natural'Image(Size(Retrieved_Blob)));
       end;
       
       --  Clean up
@@ -297,8 +319,12 @@ package body Blob_Tests is
       Large_Blob := Create (Large_Data);
       
       --  Check large blob properties
-      Assert (Size (Large_Blob) = Natural (Large_Size), "Large blob size should match");
-      Assert (Stream_Element_Offset (Data (Large_Blob)'Length) = Large_Size, "Large blob data length should match");
+      Assert (Size (Large_Blob) = Natural (Large_Size), 
+              "Expected large blob size" & Natural'Image(Natural(Large_Size)) & 
+              " but got" & Natural'Image(Size(Large_Blob)));
+      Assert (Stream_Element_Offset (Data (Large_Blob)'Length) = Large_Size, 
+              "Expected large blob data length" & Stream_Element_Offset'Image(Large_Size) & 
+              " but got" & Stream_Element_Offset'Image(Stream_Element_Offset(Data(Large_Blob)'Length)));
       
       --  Test storing and retrieving large blob
       declare
@@ -313,14 +339,17 @@ package body Blob_Tests is
       --  Retrieve the large blob
       declare
          Stmt2 : Statement := Prepare (DB, "SELECT data FROM test_blobs WHERE name = 'Large Blob'");
+         Result : constant Result_Code := Step(Stmt2);
       begin
-         Assert (Step (Stmt2) = ROW, "Should have a row with the large blob");
+         Assert (Result = ROW, "Expected ROW but got " & Result_Code'Image(Result) & " when retrieving large blob");
       
          --  Get the blob from the column
          Retrieved_Blob := Column_Blob (Stmt2, 0);
       
          --  Check that the retrieved blob matches the original
-         Assert (Size (Retrieved_Blob) = Size (Large_Blob), "Retrieved large blob size should match");
+         Assert (Size (Retrieved_Blob) = Size (Large_Blob), 
+                 "Expected retrieved large blob size" & Natural'Image(Size(Large_Blob)) & 
+                 " but got" & Natural'Image(Size(Retrieved_Blob)));
       
          --  Check a sample of the data (checking all 100KB would be too slow for a unit test)
          declare
@@ -336,13 +365,17 @@ package body Blob_Tests is
             --  Check first chunk
             for I in 1 .. First_Range loop
                Assert (Retrieved_Data (I) = Original_Data (I),
-                      "First chunk data should match at index " & Stream_Element_Offset'Image (I));
+                      "Expected first chunk data at index" & Stream_Element_Offset'Image(I) & 
+                      " to be" & Stream_Element'Image(Original_Data(I)) & 
+                      " but got" & Stream_Element'Image(Retrieved_Data(I)));
             end loop;
          
             --  Check last chunk
             for I in Last_Start .. Large_Size loop
                Assert (Retrieved_Data (I) = Original_Data (I),
-                      "Last chunk data should match at index " & Stream_Element_Offset'Image (I));
+                      "Expected last chunk data at index" & Stream_Element_Offset'Image(I) & 
+                      " to be" & Stream_Element'Image(Original_Data(I)) & 
+                      " but got" & Stream_Element'Image(Retrieved_Data(I)));
             end loop;
          
             --  Check some random samples in the middle
@@ -352,7 +385,9 @@ package body Blob_Tests is
                      Stream_Element_Offset (I * Natural (Large_Size) / 10);
                begin
                   Assert (Retrieved_Data (Index) = Original_Data (Index),
-                         "Middle sample should match at index " & Stream_Element_Offset'Image (Index));
+                         "Expected middle sample at index" & Stream_Element_Offset'Image(Index) & 
+                         " to be" & Stream_Element'Image(Original_Data(Index)) & 
+                         " but got" & Stream_Element'Image(Retrieved_Data(Index)));
                end;
             end loop;
          end;

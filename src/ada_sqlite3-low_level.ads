@@ -195,7 +195,7 @@ package Ada_Sqlite3.Low_Level is
    subtype Sqlite3_Argc is C.int range 0 .. 127;
    subtype Sqlite3_Num_Args is C.int range -1 .. Sqlite3_Argc'Last;
    -- SQLite allows 0 to 127 arguments, array is indexed from 0 to 127
-   subtype Sqlite3_Args_Index is C.size_t range 0 .. C.size_t(Sqlite3_Argc'Last) - 1;
+   subtype Sqlite3_Args_Index is C.size_t;
    type Sqlite3_Value_Array is array (Sqlite3_Args_Index range <>) of Sqlite3_Value
      with Convention => C;
 

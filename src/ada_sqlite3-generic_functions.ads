@@ -27,8 +27,8 @@ package Ada_Sqlite3.Generic_Functions is
    -- Argument access
    subtype Function_Args_Count is Low_Level.Sqlite3_Argc;
    subtype Function_Args_Index is Low_Level.Sqlite3_Args_Index;
-   type Function_Args (First_Index : Low_Level.Sqlite3_Args_Index;
-                      Last_Index  : Low_Level.Sqlite3_Args_Index) is private;
+   type Function_Args (First_Index : Interfaces.C.size_t;
+                      Last_Index  : Interfaces.C.size_t) is private;
    
    function Create_Args (N_Args : Low_Level.Sqlite3_Argc) return Function_Args;
    function Arg_Count (Args : Function_Args) return Function_Args_Count;
@@ -133,14 +133,12 @@ private
    type Function_Args (First_Index : Low_Level.Sqlite3_Args_Index;
                       Last_Index  : Low_Level.Sqlite3_Args_Index) is record
       Data : Low_Level.Sqlite3_Value_Array (First_Index .. Last_Index);
-   end record
-   with Type_Invariant => (First_Index > Last_Index or else First_Index = 0);
+   end record;
 
    function Get_Value (Args : Function_Args; Index : Function_Args_Index) 
       return Low_Level.Sqlite3_Value 
       with Pre => (Args.First_Index <= Args.Last_Index and then 
-                  Index >= Args.First_Index and then 
-                  Index <= Args.Last_Index);
+                  Index + Args.First_Index <= Args.Last_Index);
 
    type Function_Kind is (Scalar, Aggregate, Window);
    

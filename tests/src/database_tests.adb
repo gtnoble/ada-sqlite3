@@ -39,7 +39,7 @@ package body Database_Tests is
       declare
          DB : Database := Open (Test_DB_File, OPEN_READWRITE or OPEN_CREATE);
       begin
-         Assert (Is_Open (DB), "Database should be open");
+         Assert (Is_Open (DB), "Expected database to be open but it was closed");
 
          --  Create and use a statement
          declare
@@ -64,7 +64,7 @@ package body Database_Tests is
       declare
          DB : Database := Open (":memory:", OPEN_READWRITE or OPEN_CREATE);
       begin
-         Assert (Is_Open (DB), "In-memory database should be open");
+         Assert (Is_Open (DB), "Expected in-memory database to be open but it was closed");
 
          --  Create a table and insert data
          Execute (DB, "CREATE TABLE test (id INTEGER PRIMARY KEY, value TEXT)");
@@ -73,11 +73,11 @@ package body Database_Tests is
          --  Verify data was inserted
          declare
             Stmt : Statement := Prepare (DB, "SELECT COUNT(*) FROM test");
-            Result : Result_Code;
+            Result : constant Result_Code := Step (Stmt);
          begin
-            Result := Step (Stmt);
-            Assert (Result = ROW, "Step should return ROW");
-            Assert (Column_Int (Stmt, 0) = 1, "Should have 1 row");
+            Assert (Result = ROW, "Expected ROW but got " & Result_Code'Image(Result));
+            Assert (Column_Int (Stmt, 0) = 1, 
+                    "Expected 1 row but got" & Integer'Image(Column_Int (Stmt, 0)));
          end;
 
       end;
@@ -112,7 +112,7 @@ package body Database_Tests is
                end if;
             end loop;
             
-            Assert (Count = 2, "Should have 2 rows");
+            Assert (Count = 2, "Expected 2 rows but got" & Integer'Image(Count));
          end;
 
       end;
@@ -131,13 +131,15 @@ package body Database_Tests is
          Execute (DB, "INSERT INTO test (value) VALUES ('test value')");
 
          --  Check last insert row ID
-         Assert (Last_Insert_Row_ID (DB) = 1, "Last insert row ID should be 1");
+         Assert (Last_Insert_Row_ID (DB) = 1, 
+                 "Expected last insert row ID to be 1 but got" & Long_Integer'Image(Last_Insert_Row_ID (DB)));
 
          --  Insert another row
          Execute (DB, "INSERT INTO test (value) VALUES ('another value')");
 
          --  Check last insert row ID
-         Assert (Last_Insert_Row_ID (DB) = 2, "Last insert row ID should be 2");
+         Assert (Last_Insert_Row_ID (DB) = 2, 
+                 "Expected last insert row ID to be 2 but got" & Long_Integer'Image(Last_Insert_Row_ID (DB)));
       end;
    end Test_Last_Insert_Row_ID;
 
@@ -159,7 +161,7 @@ package body Database_Tests is
          Execute (DB, "UPDATE test SET value = 'updated'");
 
          --  Check number of changes
-         Assert (Changes (DB) = 3, "Changes should be 3");
+         Assert (Changes (DB) = 3, "Expected 3 changes but got" & Integer'Image(Changes (DB)));
       end;
    end Test_Changes;
 
@@ -169,7 +171,8 @@ package body Database_Tests is
       Ver : constant String := Version;
    begin
       --  Version should not be empty
-      Assert (Ver'Length > 0, "Version string should not be empty");
+      Assert (Ver'Length > 0, 
+              "Expected non-empty version string but got length" & Integer'Image(Ver'Length));
    end Test_Version;
 
    --  Test invalid database
@@ -191,7 +194,8 @@ package body Database_Tests is
       end;
 
       --  Check that an exception was raised
-      Assert (Exception_Raised, "Exception should be raised for invalid database path");
+      Assert (Exception_Raised, 
+              "Expected SQLite_Error exception for invalid database path but no exception was raised");
    end Test_Invalid_Database;
 
    --  Test invalid SQL
@@ -212,7 +216,8 @@ package body Database_Tests is
          end;
 
          --  Check that an exception was raised
-         Assert (Exception_Raised, "Exception should be raised for invalid SQL");
+         Assert (Exception_Raised, 
+                 "Expected SQLite_Error exception for invalid SQL but no exception was raised");
       end;
    end Test_Invalid_SQL;
 
