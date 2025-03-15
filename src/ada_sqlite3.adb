@@ -374,6 +374,16 @@ package body Ada_Sqlite3 is
       end if;
    end Step;
 
+   --  Bind a NULL value to a parameter by name
+   procedure Bind_Null
+     (Stmt  : in out Statement;
+      Name  : String) is
+      Index : Positive;
+   begin
+      Bind_Parameter_Index(Stmt, Name, Index);
+      Bind_Null(Stmt, Index);
+   end Bind_Null;
+
    --  Bind a NULL value to a parameter
    procedure Bind_Null
      (Stmt  : in out Statement;
@@ -393,6 +403,17 @@ package body Ada_Sqlite3 is
          Raise_Error (Result, "Failed to bind NULL value");
       end if;
    end Bind_Null;
+
+   --  Bind an Integer value to a parameter by name
+   procedure Bind_Int
+     (Stmt  : in out Statement;
+      Name  : String;
+      Value : Integer) is
+      Index : Positive;
+   begin
+      Bind_Parameter_Index(Stmt, Name, Index);
+      Bind_Int(Stmt, Index, Value);
+   end Bind_Int;
 
    --  Bind an Integer value to a parameter
    procedure Bind_Int
@@ -416,6 +437,17 @@ package body Ada_Sqlite3 is
       end if;
    end Bind_Int;
 
+   --  Bind a Long_Integer value to a parameter by name
+   procedure Bind_Int64
+     (Stmt  : in out Statement;
+      Name  : String;
+      Value : Long_Integer) is
+      Index : Positive;
+   begin
+      Bind_Parameter_Index(Stmt, Name, Index);
+      Bind_Int64(Stmt, Index, Value);
+   end Bind_Int64;
+
    --  Bind a Long_Integer value to a parameter
    procedure Bind_Int64
      (Stmt  : in out Statement;
@@ -438,6 +470,17 @@ package body Ada_Sqlite3 is
       end if;
    end Bind_Int64;
 
+   --  Bind a Float value to a parameter by name
+   procedure Bind_Double
+     (Stmt  : in out Statement;
+      Name  : String;
+      Value : Float) is
+      Index : Positive;
+   begin
+      Bind_Parameter_Index(Stmt, Name, Index);
+      Bind_Double(Stmt, Index, Value);
+   end Bind_Double;
+
    --  Bind a Float value to a parameter
    procedure Bind_Double
      (Stmt  : in out Statement;
@@ -459,6 +502,17 @@ package body Ada_Sqlite3 is
          Raise_Error (Result, "Failed to bind float value");
       end if;
    end Bind_Double;
+
+   --  Bind a String value to a parameter by name
+   procedure Bind_Text
+     (Stmt  : in out Statement;
+      Name  : String;
+      Value : String) is
+      Index : Positive;
+   begin
+      Bind_Parameter_Index(Stmt, Name, Index);
+      Bind_Text(Stmt, Index, Value);
+   end Bind_Text;
 
    --  Bind a String value to a parameter
    procedure Bind_Text
@@ -486,6 +540,17 @@ package body Ada_Sqlite3 is
          Raise_Error (Result, "Failed to bind text value");
       end if;
    end Bind_Text;
+
+   --  Bind a UTF-16 text value to a parameter by name
+   procedure Bind_Text_UTF16
+     (Stmt  : in out Statement;
+      Name  : String;
+      Value : Wide_String) is
+      Index : Positive;
+   begin
+      Bind_Parameter_Index(Stmt, Name, Index);
+      Bind_Text_UTF16(Stmt, Index, Value);
+   end Bind_Text_UTF16;
 
    procedure Bind_Text_UTF16
      (Stmt  : in out Statement;

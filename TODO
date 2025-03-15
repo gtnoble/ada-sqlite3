@@ -1,3 +1,2 @@
-Add user defined function functionality (if it does not exist yet)
-Debug function tests
-Make sure Sqlite value array type has a range of size_t
+Make sure SQLite double type is represented with the proper precision
+Add UTF16 statement tests

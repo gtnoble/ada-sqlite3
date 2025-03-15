@@ -132,10 +132,19 @@ package Ada_Sqlite3 is
      (Stmt  : in out Statement;
       Index : Positive);
 
+   procedure Bind_Null
+     (Stmt  : in out Statement;
+      Name  : String);
+
    --  Bind an Integer value to a parameter
    procedure Bind_Int
      (Stmt  : in out Statement;
       Index : Positive;
+      Value : Integer);
+
+   procedure Bind_Int
+     (Stmt  : in out Statement;
+      Name  : String;
       Value : Integer);
 
    --  Bind a Long_Integer value to a parameter
@@ -144,10 +153,20 @@ package Ada_Sqlite3 is
       Index : Positive;
       Value : Long_Integer);
 
+   procedure Bind_Int64
+     (Stmt  : in out Statement;
+      Name  : String;
+      Value : Long_Integer);
+
    --  Bind a Float value to a parameter
    procedure Bind_Double
      (Stmt  : in out Statement;
       Index : Positive;
+      Value : Float);
+
+   procedure Bind_Double
+     (Stmt  : in out Statement;
+      Name  : String;
       Value : Float);
 
    --  Bind a String value to a parameter
@@ -156,10 +175,20 @@ package Ada_Sqlite3 is
       Index : Positive;
       Value : String);
 
+   procedure Bind_Text
+     (Stmt  : in out Statement;
+      Name  : String;
+      Value : String);
+
    --  Bind a Wide_String value to a parameter as UTF-16 text
    procedure Bind_Text_UTF16
      (Stmt  : in out Statement;
       Index : Positive;
+      Value : Wide_String);
+
+   procedure Bind_Text_UTF16
+     (Stmt  : in out Statement;
+      Name  : String;
       Value : Wide_String);
 
    --  Bind a parameter by name

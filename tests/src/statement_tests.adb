@@ -123,14 +123,14 @@ package body Statement_Tests is
                Assert (Column_Int (Stmt, 1) = 42, 
                        "Expected first row int_val 42 but got" & Integer'Image(Column_Int (Stmt, 1)));
                Assert (abs (Column_Double (Stmt, 2) - 3.14) < 0.001, 
-                       "Expected first row real_val 3.14 but got" & Float'Image(Float(Column_Double (Stmt, 2))));
+                       "Expected first row real_val 3.14 but got" & Float'Image(Column_Double (Stmt, 2)));
                Assert (Column_Text (Stmt, 3) = "hello", 
                        "Expected first row text_val 'hello' but got '" & Column_Text (Stmt, 3) & "'");
             elsif Count = 2 then
                Assert (Column_Int (Stmt, 1) = 123, 
                        "Expected second row int_val 123 but got" & Integer'Image(Column_Int (Stmt, 1)));
                Assert (abs (Column_Double (Stmt, 2) - 2.71) < 0.001, 
-                       "Expected second row real_val 2.71 but got" & Float'Image(Float(Column_Double (Stmt, 2))));
+                       "Expected second row real_val 2.71 but got" & Float'Image(Column_Double (Stmt, 2)));
                Assert (Column_Text (Stmt, 3) = "world", 
                        "Expected second row text_val 'world' but got '" & Column_Text (Stmt, 3) & "'");
             end if;
@@ -260,7 +260,7 @@ package body Statement_Tests is
       --  Should have a row
       Assert (Result = ROW, "Expected ROW but got " & Result_Code'Image(Result) & " for row with real_val = " & Pi'Image);
          Assert (abs (Column_Double (Stmt2, 0) - Pi) < 0.0001, 
-                 "Expected real_val" & Pi'Image & " but got" & Float'Image(Float(Column_Double (Stmt2, 0))));
+                 "Expected real_val" & Pi'Image & " but got" & Float'Image(Column_Double (Stmt2, 0)));
       
          --  Clean up
       
@@ -451,7 +451,7 @@ begin
    
    --  Check column value
    Assert (abs (Column_Double (Stmt, 0) - 3.14) < 0.01, 
-           "Expected real_val approximately 3.14 but got" & Float'Image(Float(Column_Double (Stmt, 0))));
+           "Expected real_val approximately 3.14 but got" & Float'Image(Column_Double (Stmt, 0)));
    
    --  Clean up
    
@@ -495,7 +495,83 @@ begin
    --  Check column value
    Assert (Column_Is_Null (Stmt, 0), "Expected null_val to be NULL but it was not");
    
-end Test_Column_Is_Null;
+   end Test_Column_Is_Null;
+
+   --  Test binding NULL by name
+   procedure Test_Bind_NullByName (T : in out Test) is
+      pragma Unreferenced (T);
+      DB : Database := Setup_Test_DB;
+      Stmt : Statement := Prepare (DB, "INSERT INTO test (id, null_val) VALUES (:id, :null_val)");
+      Select_Stmt : Statement := Prepare (DB, "SELECT null_val FROM test WHERE id = :id");
+      Insert_Id : constant Integer := 9999;
+   begin
+      -- Bind parameters by name
+      Bind_Int (Stmt, ":id", Insert_Id);
+      Bind_Null (Stmt, ":null_val");
+      Step (Stmt);
+
+      -- Verify inserted NULL
+      Bind_Int (Select_Stmt, ":id", Insert_Id);
+      Assert (Step (Select_Stmt) = ROW, "No row inserted");
+      Assert (Column_Is_Null (Select_Stmt, 0), "null_val should be NULL");
+   end Test_Bind_NullByName;
+
+   --  Test binding integer by name
+   procedure Test_Bind_IntByName (T : in out Test) is
+      pragma Unreferenced (T);
+      DB : Database := Setup_Test_DB;
+      Stmt : Statement := Prepare (DB, "INSERT INTO test (id, int_val) VALUES (:id, :int_val)");
+      Select_Stmt : Statement := Prepare (DB, "SELECT int_val FROM test WHERE id = :id");
+      Insert_Id : constant Integer := 1001;
+      Test_Value : constant Integer := 789;
+   begin
+      Bind_Int (Stmt, ":id", Insert_Id);
+      Bind_Int (Stmt, ":int_val", Test_Value);
+      Step (Stmt);
+
+      Bind_Int (Select_Stmt, ":id", Insert_Id);
+      Assert (Step (Select_Stmt) = ROW, "No row inserted");
+      Assert (Column_Int (Select_Stmt, 0) = Test_Value, 
+              "Expected int_val" & Test_Value'Image & " but got" & Integer'Image(Column_Int (Select_Stmt, 0)));
+   end Test_Bind_IntByName;
+
+   --  Test binding text by name
+   procedure Test_Bind_TextByName (T : in out Test) is
+      pragma Unreferenced (T);
+      DB : Database := Setup_Test_DB;
+      Stmt : Statement := Prepare (DB, "INSERT INTO test (id, text_val) VALUES (:id, :text_val)");
+      Select_Stmt : Statement := Prepare (DB, "SELECT text_val FROM test WHERE id = :id");
+      Insert_Id : constant Integer := 1002;
+      Test_Value : constant String := "named_parameter_test";
+   begin
+      Bind_Int (Stmt, ":id", Insert_Id);
+      Bind_Text (Stmt, ":text_val", Test_Value);
+      Step (Stmt);
+
+      Bind_Int (Select_Stmt, ":id", Insert_Id);
+      Assert (Step (Select_Stmt) = ROW, "No row inserted");
+      Assert (Column_Text (Select_Stmt, 0) = Test_Value, 
+              "Expected text_val '" & Test_Value & "' but got '" & Column_Text (Select_Stmt, 0) & "'");
+   end Test_Bind_TextByName;
+
+   --  Test binding double by name
+   procedure Test_Bind_DoubleByName (T : in out Test) is
+      pragma Unreferenced (T);
+      DB : Database := Setup_Test_DB;
+      Stmt : Statement := Prepare (DB, "INSERT INTO test (id, real_val) VALUES (:id, :real_val)");
+      Select_Stmt : Statement := Prepare (DB, "SELECT real_val FROM test WHERE id = :id");
+      Insert_Id : constant Integer := 1003;
+      Test_Value : constant Float := 123.456;
+   begin
+      Bind_Int (Stmt, ":id", Insert_Id);
+      Bind_Double (Stmt, ":real_val", Test_Value);
+      Step (Stmt);
+
+      Bind_Int (Select_Stmt, ":id", Insert_Id);
+      Assert (Step (Select_Stmt) = ROW, "No row inserted");
+      Assert (abs (Column_Double (Select_Stmt, 0) - Test_Value) < 0.0001, 
+              "Expected real_val" & Test_Value'Image & " but got" & Float'Image(Column_Double (Select_Stmt, 0)));
+   end Test_Bind_DoubleByName;
 
    --  Test invalid statement operations
    procedure Test_Invalid_Statement (T : in out Test) is
@@ -567,6 +643,10 @@ end Test_Column_Is_Null;
       Result.Add_Test (Caller.Create ("Test_Column_Text", Test_Column_Text'Access));
       Result.Add_Test (Caller.Create ("Test_Column_Is_Null", Test_Column_Is_Null'Access));
       Result.Add_Test (Caller.Create ("Test_Invalid_Statement", Test_Invalid_Statement'Access));
+      Result.Add_Test (Caller.Create ("Test_Bind_NullByName", Test_Bind_NullByName'Access));
+      Result.Add_Test (Caller.Create ("Test_Bind_IntByName", Test_Bind_IntByName'Access));
+      Result.Add_Test (Caller.Create ("Test_Bind_TextByName", Test_Bind_TextByName'Access));
+      Result.Add_Test (Caller.Create ("Test_Bind_DoubleByName", Test_Bind_DoubleByName'Access));
       
       return Result;
    end Suite;
