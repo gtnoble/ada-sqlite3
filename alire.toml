@@ -1,6 +1,6 @@
 name = "ada_sqlite3"
 description = "Sqlite3 bindings for Ada with embedded SQLite engine"
-version = "0.1.0-dev"
+version = "0.1.0"
 
 authors = ["Garret Noble"]
 maintainers = ["Garret Noble <garretnoble@gmail.com>"]
