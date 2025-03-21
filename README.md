@@ -24,7 +24,6 @@ Ada_Sqlite3 provides a convenient and type-safe Ada interface to the SQLite3 dat
 ## Requirements
 
 - GNAT Ada compiler
-- SQLite3 development libraries
 - Alire package manager (recommended)
 
 ## Installation
@@ -37,13 +36,14 @@ alr with ada_sqlite3
 
 ### Manual Installation
 
-1. Ensure SQLite3 development libraries are installed on your system
-2. Clone this repository
-3. Build the library:
+1. Clone this repository
+2. Build the library:
 
 ```bash
 gprbuild -P ada_sqlite3.gpr
 ```
+
+Note: SQLite3 is embedded in the library, so no external SQLite dependencies are required.
 
 ## Usage
 

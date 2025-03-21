@@ -4,7 +4,7 @@ project Ada_Sqlite3 is
    for Library_Name use "Ada_Sqlite3";
    for Library_Version use Project'Library_Name & ".so." & Ada_Sqlite3_Config.Crate_Version;
 
-   for Source_Dirs use ("src/", "config/");
+   for Source_Dirs use ("src/", "config/", "src/sqlite3");
    for Object_Dir use "obj/" & Ada_Sqlite3_Config.Build_Profile;
    for Create_Missing_Dirs use "True";
    for Library_Dir use "lib";
@@ -14,8 +14,16 @@ project Ada_Sqlite3 is
      external ("ADA_SQLITE3_LIBRARY_TYPE", external ("LIBRARY_TYPE", "static"));
    for Library_Kind use Library_Type;
 
+   for Languages use ("Ada", "C");
+
    package Compiler is
       for Default_Switches ("Ada") use Ada_Sqlite3_Config.Ada_Compiler_Switches;
+      for Default_Switches ("C") use 
+         ("-O2",                    -- Optimize for performance
+          "-DSQLITE_THREADSAFE=1",  -- Enable thread-safety
+          "-DSQLITE_ENABLE_COLUMN_METADATA", -- Enable additional metadata
+          "-DSQLITE_ENABLE_UNLOCK_NOTIFY",   -- Enable unlock notification
+          "-fPIC");                 -- Position Independent Code
    end Compiler;
 
    package Binder is

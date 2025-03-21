@@ -17,8 +17,4 @@ project Ada_Sqlite3_Tests is
       for Switches ("Ada") use ("-Es"); --  Symbolic traceback
    end Binder;
 
-   package Linker is
-      for Switches ("Ada") use ("-g", "-lsqlite3");
-   end Linker;
-
 end Ada_Sqlite3_Tests;
