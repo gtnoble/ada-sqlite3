@@ -1,2 +1,4 @@
 Make sure SQLite double type is represented with the proper precision
 Add UTF16 statement tests
+Allow manual statement finalization
+Allow manual database closing
