@@ -9,9 +9,6 @@ licenses = "MIT OR Apache-2.0 WITH LLVM-exception"
 website = ""
 tags = ["sqlite", "database", "sql", "embedded"]
 
-[[depends-on]]
-aunit = "25.0.0"
-
 [build-switches]
 "*".compile_checks = ["-gnatwa", "-gnatVa", "-gnatQ"]
 "*".style_checks = []
