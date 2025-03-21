@@ -4,3 +4,4 @@ tests/crash_logs
 tests/crash_dump.bin
 config
 lib
+alire
